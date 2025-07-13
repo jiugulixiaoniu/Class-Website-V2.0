@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级网站管理后台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/admin.css">
+</head>
+<body>
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar">
+        <div class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <h2>班级网站管理</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="active"><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> 控制台</a></li>
+                <li><a href="#members"><i class="fas fa-users"></i> 成员管理</a></li>
+                <li><a href="#registration-requests"><i class="fas fa-user-plus"></i> 注册申请</a></li>
+                <li><a href="#articles"><i class="fas fa-pen"></i> 文章管理</a></li>
+                <li><a href="#logs"><i class="fas fa-history"></i> 访问日志</a></li>
+                <li><a href="#settings"><i class="fas fa-cog"></i> 系统设置</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <!-- 顶部导航栏 -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+                <h2 id="current-page">控制台</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="search-container">
+                    <input type="text" id="memberSearch" placeholder="搜索成员...">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="user-profile">
+                    <span class="user-name" id="current-user"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 控制台页面 -->
+        <section id="dashboard" class="content-section active">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon online">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>在线人数</h3>
+                        <p class="stat-value">12</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon register">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>注册人数</h3>
+                        <p class="stat-value">356</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon articles">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>文章总数</h3>
+                        <p class="stat-value">42</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon visitors">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>今日访问量</h3>
+                        <p class="stat-value">87</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-charts">
+                <div class="chart-container">
+                    <h3>最近一周访问量</h3>
+                    <div class="chart-placeholder" id="visits-chart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>用户活跃度</h3>
+                    <div class="chart-placeholder" id="activity-chart"></div>
+                </div>
+            </div>
+
+            <div class="recent-activities">
+                <h3>最近活动</h3>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon edit"><i class="fas fa-edit"></i></div>
+                        <div class="activity-content">
+                            <p>管理员 编辑了文章 <strong>"班级活动总结"</strong></p>
+                            <span class="activity-time">10分钟前</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon add"><i class="fas fa-plus"></i></div>
+                        <div class="activity-content">
+                            <p>管理员 添加了新成员 <strong>"张三"</strong></p>
+                            <span class="activity-time">1小时前</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon login"><i class="fas fa-sign-in-alt"></i></div>
+                        <div class="activity-content">
+                            <p>张三 登录了系统</p>
+                            <span class="activity-time">2小时前</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 成员管理页面 -->
+        <section id="members" class="content-section">
+            <div class="section-header">
+                <h3>成员管理</h3>
+                <div class="section-actions">
+                    <button class="btn primary-btn"><i class="fas fa-plus"></i> 添加成员</button>
+                </div>
+            </div>
+
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>状态:</label>
+                    <select id="statusFilter">
+                        <option value="">全部</option>
+                        <option value="online">在线</option>
+                        <option value="offline">离线</option>
+                        <option value="banned">被封禁</option>
+                        <option value="unbanned">未封禁</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>等级:</label>
+                    <select id="levelFilter">
+                        <option value="">全部</option>
+                        <option value="1">访客（1级）</option>
+                        <option value="2">普通用户（2级）</option>
+                        <option value="3">高级用户（3级）</option>
+                        <option value="4">秩序员（4级）</option>
+                        <option value="5">管理员（5级）</option>
+                        <option value="6">开发者管理员（6级）</option>
+                    </select>
+                </div>
+                <div class="filter-group date-range">
+                    <label>最后登录时间:</label>
+                    <input type="date" id="lastLoginStart">
+                    <span>至</span>
+                    <input type="date" id="lastLoginEnd">
+                </div>
+                <div class="filter-group date-range">
+                    <label>创建时间:</label>
+                    <input type="date" id="createdStart">
+                    <span>至</span>
+                    <input type="date" id="createdEnd">
+                </div>
+                <div class="filter-group">
+                    <label>每页显示:</label>
+                    <select id="pageSizeSelect">
+                        <option value="30">30条</option>
+                        <option value="50">50条</option>
+                        <option value="100">100条</option>
+                    </select>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="memberSearch1" placeholder="搜索成员...">
+                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+
+            <div class="members-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th><button data-sort="id" class="sort-btn">ID</button></th>
+                            <th>姓名</th>
+                            <th>等级</th>
+                            <th><button data-sort="last_login" class="sort-btn">最后登录时间</button></th>
+                            <th>用户创建时间</th>
+                            <th>在线状态</th>
+                            <th>封禁状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="members-list">
+                        <!-- 通过 JavaScript 动态加载成员列表 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn disabled"><i class="fas fa-angle-left"></i></button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">...</button>
+                <button class="page-btn">10</button>
+                <button class="page-btn"><i class="fas fa-angle-right"></i></button>
+            </div>
+        </section>
+
+        <!-- 成员编辑模态框 -->
+        <div id="editMemberModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>编辑成员信息</h3>
+                    <span class="close-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="editMemberForm">
+                        <input type="hidden" id="editMemberId">
+                        <div class="form-group">
+                            <label for="editUsername">用户名</label>
+                            <input type="text" id="editUsername" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editDisplayName">显示名称</label>
+                            <input type="text" id="editDisplayName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editPhone">电话号码</label>
+                            <input type="text" id="editPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editEmail">邮箱地址</label>
+                            <input type="email" id="editEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editLevel">等级</label>
+                            <select id="editLevel" required>
+                                <option value="1">访客</option>
+                                <option value="2">普通用户</option>
+                                <option value="3">内容管理员</option>
+                                <option value="4">系统管理员</option>
+                                <option value="5">超级管理员</option>
+                                <option value="6">开发者管理员</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-small cancel-btn" id="cancelEditMember">Cancel</button>
+                    <button class="btn-small save-btn" id="saveEditMember">Save</button>
+                </div>
+            </div>
+        </div>
+
+         <section id="registration-requests" class="content-section">
+            <div class="section-header">
+                <h3>注册申请</h3>
+            </div>
+            <div class="registration-requests-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>显示名称</th>
+                            <th>申请时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requests-list">
+                        <!-- 通过 JavaScript 动态加载注册申请列表 -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 文章管理页面 -->
+        <section id="articles" class="content-section">
+            <div class="section-header">
+                <h3>文章管理</h3>
+                <div class="section-actions">
+                    <button class="btn primary-btn"><i class="fas fa-plus"></i> 发布文章</button>
+                </div>
+            </div>
+
+            <div class="articles-tabs">
+                <button class="tab-btn active">全部文章</button>
+                <button class="tab-btn">草稿</button>
+                <button class="tab-btn">已发布</button>
+                <button class="tab-btn">已删除</button>
+            </div>
+
+            <div class="articles-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>标题</th>
+                            <th>作者</th>
+                            <th>分类</th>
+                            <th>状态</th>
+                            <th>发布日期</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="articles-list">
+                        <!-- 文章列表将通过 JavaScript 动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn disabled"><i class="fas fa-angle-left"></i></button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">...</button>
+                <button class="page-btn">10</button>
+                <button class="page-btn"><i class="fas fa-angle-right"></i></button>
+            </div>
+        </section>
+
+        <!-- 访问日志页面 -->
+        <section id="logs" class="content-section">
+            <div class="section-header">
+                <h3>访问日志</h3>
+                <div class="section-actions">
+                    <div class="date-range">
+                        <input type="date" id="start-date">
+                        <span>至</span>
+                        <input type="date" id="end-date">
+                        <button class="btn primary-btn">查询</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="logs-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户</th>
+                            <th>IP地址</th>
+                            <th>访问页面</th>
+                            <th>访问时间</th>
+                            <th>设备</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-list">
+                        <!-- 访问日志将通过 JavaScript 动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn disabled"><i class="fas fa-angle-left"></i></button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">...</button>
+                <button class="page-btn">10</button>
+                <button class="page-btn"><i class="fas fa-angle-right"></i></button>
+            </div>
+        </section>
+
+        <!-- 系统设置页面 -->
+        <section id="settings" class="content-section">
+            <div class="settings-container">
+                <div class="settings-section">
+                    <h3>网站基本信息</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label for="site-name">网站名称</label>
+                            <input type="text" id="site-name" value="班级网站">
+                        </div>
+                        <div class="form-group">
+                            <label for="site-description">网站描述</label>
+                            <textarea id="site-description">这里是我们的班级网站，用于学习、交流和记录成长。</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="site-logo">网站Logo</label>
+                            <input type="file" id="site-logo">
+                        </div>
+                        <div class="form-group">
+                            <label for="site-favicon">网站图标</label>
+                            <input type="file" id="site-favicon">
+                        </div>
+                        <button class="btn primary-btn">保存设置</button>
+                    </form>
+                </div>
+
+                <div class="settings-section">
+                    <h3>安全设置</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label for="login-attempts">最大登录尝试次数</label>
+                            <input type="number" id="login-attempts" value="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="lock-time">锁定时间（分钟）</label>
+                            <input type="number" id="lock-time" value="30">
+                        </div>
+                        <div class="form-group">
+                            <label for="password-strength">密码强度要求</label>
+                            <select id="password-strength">
+                                <option>低</option>
+                                <option selected>中</option>
+                                <option>高</option>
+                            </select>
+                        </div>
+                        <button class="btn primary-btn">保存设置</button>
+                    </form>
+                </div>
+
+                <div class="settings-section">
+                    <h3>用户设置</h3>
+                    <form class="settings-form">
+                        <div class="form-group">
+                            <label for="registration-status">注册状态</label>
+                            <select id="registration-status">
+                                <option selected>开放注册</option>
+                                <option>关闭注册</option>
+                                <option>需要审核</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="default-role">默认角色</label>
+                            <select id="default-role">
+                                <option selected>成员</option>
+                                <option>访客</option>
+                            </select>
+                        </div>
+                        <button class="btn primary-btn">保存设置</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../static/js/admin/admin.js"></script>
+    <script src="../static/js/auth.js"></script>
+    <script src="../static/js/admin/UI-admin.js"></script>
+</body>
+</html>

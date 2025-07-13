@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级网站 - 凝聚力量，共创未来</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>班级网站</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#" class="active">首页</a></li>
+                <li><a href="#">班级公告</a></li>
+                <li><a href="toolbox.html">工具箱</a></li>
+                <li><a href="#">班级相册</a></li>
+                <li><a href="#">活动安排</a></li>
+                <li><a href="#">关于我们</a></li>
+            </ul>
+            <div class="user-section">
+                <div class="user-info">
+                    <span class="user-display-name" id="usernameDisplay"></span>
+                    <span class="welcome-message" id="welcomeMessage"></span>
+                </div>
+                <div class="user-actions">
+                    <a href="login.html" class="btn login-btn" id="loginBtn">登录</a>
+                    <a href="#" class="btn register-btn" id="registerBtn">注册</a>
+                    <a href="#" class="btn logout-btn" id="logoutBtn" style="display: none;">退出</a>
+                </div>
+            </div>
+            <button class="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 头部横幅 -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>欢迎来到我们的班级网站</h1>
+                <p>这里是我们共同学习、成长、交流的平台</p>
+                <div class="clock" id="clock"></div>
+                <div class="header-buttons">
+                    <a href="#" class="btn primary-btn">查看公告</a>
+                    <a href="#" class="btn secondary-btn">加入讨论</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <main class="container">
+        <!-- 班级公告 -->
+        <section class="announcements">
+            <div class="section-header">
+                <h2><i class="fas fa-bullhorn"></i> 最新公告</h2>
+                <a href="#" class="view-all">查看全部</a>
+            </div>
+        </section>
+
+        <!-- 班级活动 -->
+        <section class="activities">
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-alt"></i> 近期活动</h2>
+                <a href="#" class="view-all">查看全部</a>
+            </div>
+        </section>
+
+        <!-- 班级相册 -->
+        <section class="gallery">
+            <div class="section-header">
+                <h2><i class="fas fa-images"></i> 班级相册</h2>
+                <a href="#" class="view-all">查看全部</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-info">
+                <h3><i class="fas fa-graduation-cap"></i> 班级网站</h3>
+                <p>凝聚班级力量，记录成长点滴，共创美好未来</p>
+                <div class="social-icons">
+                    <a href="https://space.bilibili.com/3546617818909179"><i class="fab fa-bilibili"></i></a>
+                    <a href="https://github.com/jiugulixiaoniu/Class-website"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <h4>快速链接</h4>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">班级公告</a></li>
+                    <li><a href="#">学习资源</a></li>
+                    <li><a href="#">班级相册</a></li>
+                    <li><a href="toolbox.html">工具箱</a></li>
+                    <li><a href="#">关于我们</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>联系我们</h4>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> starrysea2312@yeah.net</li>
+                    <li><i class="fas fa-phone"></i> none</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 南平市建阳第二中学</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>&copy; 2023 JGL Studio. 保留所有权利</p>
+        </div>
+    </footer>
+
+
+    <script src="../static/js/script.js"></script>
+    <script src="../static/js/auth.js"></script>
+</body>
+</html>

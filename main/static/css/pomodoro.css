@@ -1,0 +1,400 @@
+/* static/css/pomodoro.css */
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #6f42c1;
+    --accent-color: #36b9cc;
+    --success-color: #1cc88a;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
+    --light-color: #f8f9fc;
+    --dark-color: #5a5c69;
+    --gray-color: #858796;
+    --background-color: #ffffff;
+    --text-color: #333333;
+    --card-background: #f8f9fc;
+    --button-color: #4e73df;
+    --button-hover-color: #3a56c4;
+    --progress-color: #1cc88a;
+}
+
+/* 深色模式变量 */
+.dark-mode {
+    --background-color: #212529;
+    --text-color: #eaf2f8;
+    --card-background: #2c3238;
+    --button-color: #5a6268;
+    --button-hover-color: #444a50;
+    --progress-color: #66fcf1;
+}
+
+/* 渐变模式变量 */
+.gradient-mode {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+}
+
+.gradient-mode .container {
+    background: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 1300px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    transition: all 0.3s ease;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    display: flex;
+    align-items: center;
+    color: var(--primary-color);
+}
+
+header h1 i {
+    margin-right: 10px;
+}
+
+.mode-toggle {
+    display: flex;
+    gap: 10px;
+}
+
+.mode-toggle button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--card-background);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.mode-toggle button.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.timer-container {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.timer-display {
+    font-size: 20rem; /* 增大字体尺寸 */
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.timer-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.timer-controls button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    background: var(--button-color);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timer-controls button:hover {
+    background: var(--button-hover-color);
+}
+
+.timer-controls button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+}
+
+.timer-settings {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.setting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.setting label {
+    flex: 1;
+    font-weight: 500;
+}
+
+.setting input {
+    flex: 2;
+}
+
+.setting span {
+    flex: 1;
+    text-align: right;
+    font-weight: 500;
+    color: var(--primary-color);
+}
+
+.progress-container {
+    margin-bottom: 30px;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #e9ecef;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+#progress {
+    height: 100%;
+    background: var(--progress-color);
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.progress-info {
+    text-align: center;
+    color: var(--gray-color);
+    font-size: 0.9rem;
+}
+
+.statistics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: var(--card-background);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.stat i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.stat-info span {
+    display: block;
+    color: var(--gray-color);
+    font-size: 0.9rem;
+}
+
+.stat-info h3 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--gray-color);
+}
+
+/* 全屏模式 */
+body.fullscreen {
+    overflow: hidden;
+}
+
+body.fullscreen .container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+body.fullscreen header {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    padding: 0 40px;
+    margin-bottom: 0;
+    padding-bottom: 10px;
+}
+
+body.fullscreen .timer-display {
+    font-size: 8rem; /* 全屏模式下进一步增大字体 */
+    margin-bottom: 30px;
+}
+
+body.fullscreen .timer-controls {
+    margin-bottom: 40px;
+}
+
+body.fullscreen .timer-settings {
+    position: absolute;
+    bottom: 200px;
+    left: 40px;
+    right: 40px;
+}
+
+body.fullscreen .progress-container {
+    position: absolute;
+    bottom: 100px;
+    left: 40px;
+    right: 40px;
+}
+
+body.fullscreen .statistics {
+    position: absolute;
+    top: 150px;
+    right: 40px;
+    width: 300px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    .timer-display {
+        font-size: 4rem;
+    }
+
+    .timer-controls button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .statistics {
+        grid-template-columns: 1fr;
+    }
+
+    body.fullscreen {
+        padding: 20px;
+    }
+
+    body.fullscreen .timer-display {
+        font-size: 6rem;
+    }
+}
+body.fullscreen {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body.fullscreen .container {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+body.fullscreen header {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 40px;
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+body.fullscreen .timer-display {
+    font-size: 25vw; /* 全屏模式下进一步增大字体，使用视口宽度的百分比 */
+    margin-bottom: 40px;
+}
+
+body.fullscreen .timer-controls {
+    margin-bottom: 40px;
+}
+
+body.fullscreen .timer-settings {
+    position: absolute;
+    bottom: 200px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+body.fullscreen .progress-container {
+    position: absolute;
+    bottom: 100px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+}
+
+body.fullscreen .statistics {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    display: flex;
+    gap: 20px;
+    padding: 0 20px;
+}

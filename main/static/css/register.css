@@ -1,0 +1,431 @@
+/* static/css/register.css */
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #6f42c1;
+    --accent-color: #36b9cc;
+    --success-color: #1cc88a;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
+    --light-color: #f8f9fc;
+    --dark-color: #2c3e50;
+    --gray-color: #858796;
+    --gradient-start: #4e73df;
+    --gradient-end: #224abe;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    transition: background 0.3s ease;
+}
+
+.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eaf2f8;
+}
+
+.auth-container {
+    width: 420px;
+    background: rgba(20, 30, 55, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(71, 168, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-box {
+    padding: 40px;
+    animation: slide-up 0.5s ease-out;
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.brand-logo {
+    margin-right: 15px;
+    background: var(--primary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-header h2 {
+    font-weight: 500;
+    font-size: 1.8rem;
+    background: linear-gradient(to right, #ffffff, var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #72c7ff;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s;
+}
+
+input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(71, 168, 255, 0.3);
+    padding: 12px 15px 12px 40px;
+    border-radius: 8px;
+    color: #eaf2f8;
+    font-size: 1rem;
+    transition: all 0.3s;
+    outline: none;
+}
+
+input:focus {
+    box-shadow: 0 0 10px rgba(71, 168, 255, 0.5);
+}
+
+.show-password {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s;
+}
+
+.show-password:hover {
+    color: #72c7ff;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(71, 168, 255, 0.5);
+}
+
+.login-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.forgot-password, .register-link {
+    font-size: 0.9rem;
+    color: #72c7ff;
+    text-decoration: none;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.forgot-password:hover, .register-link:hover {
+    color: var(--accent-color);
+}
+
+.forgot-password::before, .register-link::after {
+    content: '○';
+    margin-right: 5px;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    display: inline-block;
+    animation: float 3s infinite ease-in-out;
+}
+
+.register-link::after {
+    margin-left: 5px;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+    .auth-container {
+        width: 90%;
+        max-width: 350px;
+    }
+
+    .login-header h2 {
+        font-size: 1.5rem;
+    }
+}
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #6f42c1;
+    --accent-color: #36b9cc;
+    --success-color: #1cc88a;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
+    --light-color: #f8f9fc;
+    --dark-color: #2c3e50;
+    --gray-color: #858796;
+    --gradient-start: #4e73df;
+    --gradient-end: #224abe;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    transition: background 0.3s ease;
+}
+
+.dark-mode {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: #eaf2f8;
+}
+
+.auth-container {
+    width: 420px;
+    background: rgba(20, 30, 55, 0.7);
+    backdrop-filter: blur(8px);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(71, 168, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.login-box {
+    padding: 40px;
+    animation: slide-up 0.5s ease-out;
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.brand-logo {
+    margin-right: 15px;
+    background: var(--primary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-header h2 {
+    font-weight: 500;
+    font-size: 1.8rem;
+    background: linear-gradient(to right, #ffffff, var(--accent-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    color: #72c7ff;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s;
+}
+
+input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(71, 168, 255, 0.3);
+    padding: 12px 15px 12px 40px;
+    border-radius: 8px;
+    color: #eaf2f8;
+    font-size: 1rem;
+    transition: all 0.3s;
+    outline: none;
+}
+
+input:focus {
+    box-shadow: 0 0 10px rgba(71, 168, 255, 0.5);
+}
+
+.show-password {
+    position: absolute;
+    right: 15px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s;
+}
+
+.show-password:hover {
+    color: #72c7ff;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    margin-top: 15px;
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(71, 168, 255, 0.5);
+}
+
+.login-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+.forgot-password, .register-link {
+    font-size: 0.9rem;
+    color: #72c7ff;
+    text-decoration: none;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+}
+
+.forgot-password:hover, .register-link:hover {
+    color: var(--accent-color);
+}
+
+.forgot-password::before, .register-link::after {
+    content: '○';
+    margin-right: 5px;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.7rem;
+    display: inline-block;
+    animation: float 3s infinite ease-in-out;
+}
+
+.register-link::after {
+    margin-left: 5px;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* 状态提示 */
+.register-status {
+    min-height: 30px;
+    margin: 15px 0;
+}
+
+.status-closed {
+    color: var(--danger-color);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.status-verify {
+    color: var(--warning-color);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.status-open {
+    color: var(--success-color);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.status-error {
+    color: var(--danger-color);
+    text-align: center;
+    font-size: 0.9rem;
+}

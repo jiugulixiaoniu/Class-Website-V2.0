@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番茄钟 - 班级网站</title>
+    <link rel="stylesheet" href="../static/css/pomodoro.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="light-mode">
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-clock"></i> 番茄钟</h1>
+            <div class="mode-toggle">
+                <button id="lightMode" class="active"><i class="fas fa-sun"></i></button>
+                <button id="darkMode"><i class="fas fa-moon"></i></button>
+                <button id="gradientMode"><i class="fas fa-palette"></i></button>
+                <button id="fullScreen"><i class="fas fa-expand"></i></button>
+            </div>
+        </header>
+
+        <main>
+            <div class="timer-container">
+                <div class="timer-display">
+                    <span id="minutes">25</span>:<span id="seconds">00</span>
+                </div>
+                <div class="timer-controls">
+                    <button id="startBtn">开始</button>
+                    <button id="pauseBtn" disabled>暂停</button>
+                    <button id="resetBtn">重置</button>
+                </div>
+                <div class="timer-settings">
+                    <div class="setting">
+                        <label for="workTime">工作时长 (分钟)</label>
+                        <input type="range" id="workTime" min="5" max="60" value="25">
+                        <span id="workTimeValue">25</span>
+                    </div>
+                    <div class="setting">
+                        <label for="shortBreak">短休息 (分钟)</label>
+                        <input type="range" id="shortBreak" min="1" max="15" value="5">
+                        <span id="shortBreakValue">5</span>
+                    </div>
+                    <div class="setting">
+                        <label for="longBreak">长休息 (分钟)</label>
+                        <input type="range" id="longBreak" min="5" max="30" value="15">
+                        <span id="longBreakValue">15</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress"></div>
+                </div>
+                <div class="progress-info">
+                    <span id="progressText">准备开始工作</span>
+                </div>
+            </div>
+
+            <div class="statistics">
+                <div class="stat">
+                    <i class="fas fa-tasks"></i>
+                    <div class="stat-info">
+                        <span>已完成</span>
+                        <h3 id="completedSessions">0</h3>
+                    </div>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-fire"></i>
+                    <div class="stat-info">
+                        <span>当前 streak</span>
+                        <h3 id="currentStreak">0</h3>
+                    </div>
+                </div>
+                <div class="stat">
+                    <i class="fas fa-history"></i>
+                    <div class="stat-info">
+                        <span>总时长</span>
+                        <h3 id="totalTime">0</h3>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <script src="../static/js/pomodoro.js"></script>
+</body>
+</html>

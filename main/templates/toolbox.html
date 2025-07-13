@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级网站 - 工具箱</title>
+    <link rel="stylesheet" href="../static/css/toolbox.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>班级网站</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#">首页</a></li>
+                <li><a href="#">班级公告</a></li>
+                <li><a href="#">学习资源</a></li>
+                <li><a href="#">班级相册</a></li>
+                <li><a href="#">活动安排</a></li>
+                <li><a href="#">工具箱</a></li>
+            </ul>
+            <div class="user-section">
+                <div class="user-info">
+                    <span class="user-display-name" id="usernameDisplay"></span>
+                    <span class="welcome-message" id="welcomeMessage"></span>
+                </div>
+                <div class="user-actions">
+                    <a href="login.html" class="btn login-btn" id="loginBtn">登录</a>
+                    <a href="#" class="btn register-btn" id="registerBtn">注册</a>
+                    <a href="#" class="btn logout-btn" id="logoutBtn" style="display: none;">退出</a>
+                </div>
+            </div>
+            <button class="mobile-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主要内容区域 -->
+    <main class="container">
+        <!-- 工具箱标题 -->
+        <section class="toolbox-header">
+            <h2><i class="fas fa-toolbox"></i> 班级工具箱</h2>
+            <p>实用工具和资源集合</p>
+        </section>
+      
+        <!-- 实用工具区域 -->
+        <section class="tools-section">
+            <div class="section-header">
+                <h3><i class="fas fa-tools"></i> 实用工具</h3>
+            </div>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <i class="fas fa-language"></i>
+                    <h4>在线翻译</h4>
+                    <p>支持多种语言互译</p>
+                    <a href="https://fanyi.baidu.com/" target="_blank" class="tool-link">访问网站</a>
+                </div>
+                <div class="tool-card">
+                    <i class="fas fa-book"></i>
+                    <h4>在线词典</h4>
+                    <p>查单词、学语法</p>
+                    <a href="https://dict.youdao.com/" target="_blank" class="tool-link">访问网站</a>
+                </div>
+                <div class="tool-card">
+                    <i class="fas fa-clock"></i>
+                    <h4>番茄钟</h4>
+                    <p>专注工作学习</p>
+                    <a href="pomodoro.html" target="_blank" class="tool-link">点击开始专注</a>
+                </div>
+                <div class="tool-card">
+                    <i class="fas fa-notes-medical"></i>
+                    <h4>便签</h4>
+                    <p>记录重要事项</p>
+                    <a href="https://keep.google.com/" target="_blank" class="tool-link">访问网站</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 网站链接区域 -->
+        <section class="links-section">
+            <div class="section-header">
+                <h3><i class="fas fa-link"></i> 优质资源</h3>
+            </div>
+            <div class="links-container">
+                <div class="link-category">
+                    <h4>学习资源</h4>
+                    <ul>
+                        <li><a href="https://www.eduyun.cn/" target="_blank">国家教育资源公共服务平台</a></li>
+                        <li><a href="https://class.luogu.com.cn/" target="_blank">洛谷网校</a></li>
+                        <li><a href="https://github.com/TapXWorld/ChinaTextbook" target="_blank">全套教科书电子版下载</a></li>
+                        <li><a href="https://www.zxx.edu.cn/" target="_blank">国家中小学智慧教育平台</a></li>
+                        <li><a href="https://www.xuexi.cn/" target="_blank">学习强国教育频道</a></li>
+                        <li><a href="https://www.icourse163.org/" target="_blank">中国大学MOOC</a></li>
+                        <li><a href="https://dazigo.vip/" target="_blank">打字练习</a></li>
+
+                    </ul>
+                </div>
+                <div class="link-category">
+                    <h4>比赛信息</h4>
+                    <ul>
+                        <li><a href="https://www.noi.cn/" target="_blank">全国青少年信息学奥林匹克竞赛</a></li>
+                        <li><a href="https://ccho.scnu.edu.cn/" target="_blank">中国化学奥林匹克</a></li>
+                        <li><a href="https://www.cpho.org.cn/" target="_blank">全国中学生物理竞赛</a></li>
+
+                    </ul>
+                </div>
+                <div class="link-category">
+                    <h4>官方网站</h4>
+                    <ul>
+                        <li><a href="https://www.moe.gov.cn/" target="_blank">中华人民共和国教育部</a></li>
+                        <li><a href="http://jyt.fujian.gov.cn/" target="_blank">福建省教育厅</a></li>
+                        <li><a href="http://jyj.np.gov.cn/" target="_blank">南平市教育局</a></li>
+
+                    </ul>
+                </div>
+                <div class="link-category">
+                    <h4>学科平台</h4>
+                    <ul>
+                        <li><a href="https://www.cms.org.cn/" target="_blank">中国数学会</a></li>
+                        <li><a href="http://www.cps-net.org.cn/" target="_blank">中国物理学会</a></li>
+                        <li><a href="https://www.chemsoc.org.cn/" target="_blank">中国化学会</a></li>
+                        <li><a href="http://www.bsc.org.cn/" target="_blank">中国植物学会</a></li>
+                        <li><a href="https://www.ccf.org.cn/" target="_blank">中国计算机学会</a></li>
+                        <li><a href="http://www.cast.org.cn/" target="_blank">中国科学技术协会</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-info">
+                <h3><i class="fas fa-graduation-cap"></i> 班级网站</h3>
+                <p>凝聚班级力量，记录成长点滴，共创美好未来</p>
+                <div class="social-icons">
+                    <a href="https://space.bilibili.com/3546617818909179"><i class="fab fa-bilibili"></i></a>
+                    <a href="https://github.com/jiugulixiaoniu/Class-website"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-links">
+                <h4>快速链接</h4>
+                <ul>
+                    <li><a href="#">首页</a></li>
+                    <li><a href="#">班级公告</a></li>
+                    <li><a href="#">学习资源</a></li>
+                    <li><a href="#">班级相册</a></li>
+                    <li><a href="#">活动安排</a></li>
+                    <li><a href="#">工具箱</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-contact">
+                <h4>联系我们</h4>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> starrysea2312@yeah.net</li>
+                    <li><i class="fas fa-phone"></i> none</li>
+                    <li><i class="fas fa-map-marker-alt"></i> 南平市建阳第二中学</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p>&copy; 2023 JGL Studio. 保留所有权利</p>
+        </div>
+    </footer>
+
+    <script src="../static/js/toolbox.js"></script>
+    <script src="../static/js/auth.js"></script>
+</body>
+</html>
