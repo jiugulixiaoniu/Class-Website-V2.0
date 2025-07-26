@@ -1269,3 +1269,72 @@ body {
                 transform: scale(1);
             }
         }
+/* admin.css */
+.logs-table {
+    width: 100%;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+
+.logs-table th,
+.logs-table td {
+    border: 1px solid #e3e6f0;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.logs-table th {
+    background-color: #f8f9fc;
+    color: #5a5c69;
+    font-weight: 600;
+}
+
+.logs-table tr:nth-child(even) {
+    background-color: #f8f9fc;
+}
+
+.logs-table tr:hover {
+    background-color: #eef1f7;
+}
+
+.logs-table tbody tr td:nth-child(8) {
+    white-space: nowrap;
+}
+.btn-small {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    margin-right: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn {
+    background: rgba(78, 115, 223, 0.1);
+    color: var(--primary-color);
+}
+
+.edit-btn:hover {
+    background: rgba(78, 115, 223, 0.2);
+}
+
+.ban-btn {
+    background: rgba(246, 194, 62, 0.1);
+    color: var(--warning-color);
+}
+
+.ban-btn:hover {
+    background: rgba(246, 194, 62, 0.2);
+}
+
+.delete-btn {
+    background: rgba(231, 74, 59, 0.1);
+    color: var(--danger-color);
+}
+
+.delete-btn:hover {
+    background: rgba(231, 74, 59, 0.2);
+}

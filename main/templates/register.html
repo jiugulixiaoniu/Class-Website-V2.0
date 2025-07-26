@@ -97,6 +97,21 @@
                         >
                     </div>
                 </div>
+                <div id="verifyArea" style="margin-top:15px;display:none">
+                    <div id="captchaBox" style="display:none">
+                        <label>验证码</label><br>
+                        <img id="captchaImg" src="/api/captcha" onclick="this.src='/api/captcha?'+Date.now()" style="cursor:pointer;height:60px">
+                        <input type="text" id="captchaInput" maxlength="6" placeholder="请输入验证码" style="margin-left:10px">
+                    </div>
+
+                    <div id="slideBox" style="display:none">
+                        <label>滑动验证</label><br>
+                        <canvas id="slideCanvas" width="300" height="150" style="border:1px solid #ccc"></canvas>
+                        <div id="slider" style="width:300px;height:40px;background:#eee;position:relative;margin-top:10px;border-radius:4px">
+                            <div id="handle" style="width:40px;height:40px;background:#007bff;position:absolute;left:0;border-radius:4px;cursor:pointer;text-align:center;line-height:40px;color:#fff">|||</div>
+                        </div>
+                    </div>
+                </div>
                 <button type="submit" class="login-btn">注册</button>
             </form>
             <div class="login-footer">

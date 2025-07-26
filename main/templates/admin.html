@@ -37,7 +37,7 @@
             <div class="topbar-right">
                 <div class="search-container">
                     <input type="text" id="memberSearch" placeholder="搜索成员...">
-                    <button id="searchBtn"><i class="fas fa-search"></i></button>
+                    <button><i class="fas fa-search"></i></button>
                 </div>
                 <div class="user-profile">
                     <span class="user-name" id="current-user"></span>
@@ -205,8 +205,9 @@
 
             <div class="pagination">
                 <button class="page-btn disabled"><i class="fas fa-angle-left"></i></button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
+                <!-- 修改分页按钮，添加 data-page 属性 -->
+                <button class="page-btn active" data-page="1">1</button>
+                <button class="page-btn" data-page="2">2</button>
                 <button class="page-btn">3</button>
                 <button class="page-btn">...</button>
                 <button class="page-btn">10</button>
@@ -338,7 +339,8 @@
                         <input type="date" id="start-date">
                         <span>至</span>
                         <input type="date" id="end-date">
-                        <button class="btn primary-btn">查询</button>
+                        <button class="btn primary-btn" id="filterLogs">查询</button>
+                        <button class="btn primary-btn" id="refreshLogs">刷新</button>
                     </div>
                 </div>
             </div>
@@ -348,12 +350,14 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>用户</th>
-                            <th>IP地址</th>
-                            <th>访问页面</th>
-                            <th>访问时间</th>
-                            <th>设备</th>
+                            <th>用户ID</th>
+                            <th>用户名</th>
                             <th>操作</th>
+                            <th>IP地址</th>
+                            <th>浏览器</th>
+                            <th>设备类型</th>
+                            <th>时间</th>
+                            <th>位置</th>
                         </tr>
                     </thead>
                     <tbody id="logs-list">

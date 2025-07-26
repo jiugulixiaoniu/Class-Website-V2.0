@@ -202,7 +202,7 @@ function initSortingListeners() {
 // 初始化过滤事件监听器
 function initFilterListeners() {
     const filterSelects = document.querySelectorAll('.filter-group select');
-    const searchInput = document.getElementById('memberSearch');
+    const searchInput = document.getElementById('memberSearch1');
     const searchButton = document.getElementById('searchBtn');
     const lastLoginStart = document.getElementById('lastLoginStart');
     const lastLoginEnd = document.getElementById('lastLoginEnd');
@@ -274,42 +274,51 @@ async function fetchMembersWithFilter() {
         showLoading(); // 显示加载提示框
 
         // 获取筛选条件
-        const level = document.getElementById('levelFilter') ? document.getElementById('levelFilter').value : '';
-        const status = document.getElementById('statusFilter') ? document.getElementById('statusFilter').value : '';
-        const searchQuery = document.getElementById('memberSearch') ? document.getElementById('memberSearch').value : '';
-        const lastLoginStart = document.getElementById('lastLoginStart') ? document.getElementById('lastLoginStart').value : '';
-        const lastLoginEnd = document.getElementById('lastLoginEnd') ? document.getElementById('lastLoginEnd').value : '';
-        const createdStart = document.getElementById('createdStart') ? document.getElementById('createdStart').value : '';
-        const createdEnd = document.getElementById('createdEnd') ? document.getElementById('createdEnd').value : '';
-        const pageSize = document.getElementById('pageSizeSelect') ? document.getElementById('pageSizeSelect').value : 30;
-        const currentPage = document.querySelector('.pagination .page-btn.active') ? document.querySelector('.pagination .page-btn.active').textContent : 1;
+        const level = document.getElementById('levelFilter')?.value || '';
+        const status = document.getElementById('statusFilter')?.value || '';
+        const searchQuery = document.getElementById('memberSearch1')?.value || '';
+        const lastLoginStart = document.getElementById('lastLoginStart')?.value || '';
+        const lastLoginEnd = document.getElementById('lastLoginEnd')?.value || '';
+        const createdStart = document.getElementById('createdStart')?.value || '';
+        const createdEnd = document.getElementById('createdEnd')?.value || '';
+        const pageSize = document.getElementById('pageSizeSelect')?.value || 30;
+        const currentPage = document.querySelector('.pagination .page-btn.active')?.textContent || 1;
+
+        // 获取排序条件
+        const sortButton = document.querySelector('[data-sort].sort-asc, [data-sort].sort-desc');
+        const sortField = sortButton?.getAttribute('data-sort') || 'id';
+        const sortOrder = sortButton?.classList.contains('sort-asc') ? 'asc' : 'desc';
 
         // 构建查询参数
         const queryParams = new URLSearchParams({
             level: level,
             status: status,
-            search: searchQuery,
+            search: searchQuery,  // 确保参数名与后端API一致
             last_login_start: lastLoginStart,
             last_login_end: lastLoginEnd,
             created_start: createdStart,
             created_end: createdEnd,
+            page: currentPage,
             page_size: pageSize,
-            page: currentPage
+            sort_by: sortField,    // 添加排序参数
+            sort_order: sortOrder  // 添加排序方向
         });
 
-        const response = await fetch(`http://localhost:5000/api/members?${queryParams}`);
+
+        // 发送请求
+        const response = await fetch(`http://localhost:5000/api/members?${queryParams.toString()}`);
         if (!response.ok) {
-            throw new Error('请求失败');
+            throw new Error(`HTTP错误! 状态: ${response.status}`);
         }
         const data = await response.json();
-        hideLoading(); // 隐藏加载提示框
 
-        // 更新成员列表
+        // 处理响应数据
         updateMembersTableWithSearch(data.users || data); // 兼容不同返回格式
     } catch (error) {
         console.error('获取成员数据失败:', error);
         showNotification('无法获取成员数据，请检查网络连接', 'error');
-        hideLoading(); // 确保隐藏加载提示框
+    } finally {
+        hideLoading(); // 隐藏加载提示框
     }
 }
 
@@ -320,7 +329,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initSortingListeners();
     initFilterListeners();
     initPaginationListeners();
-
+    fetchLogs();
+    const refreshButton = document.getElementById('refreshLogs');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+            fetchLogs();
+        });
+    }
     // 初始化页面时获取成员列表
     fetchMembersWithFilter();
 });

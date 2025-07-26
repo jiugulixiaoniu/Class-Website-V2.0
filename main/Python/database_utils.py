@@ -1,364 +1,254 @@
 # database_utils.py
 import sqlite3
 import os
-import logging
 import datetime
 
 DB_DIR = os.path.join(os.path.dirname(__file__), 'database')
 os.makedirs(DB_DIR, exist_ok=True)
+DB_PATH = os.path.join(DB_DIR, 'class_site.db')
 
-# 定义三个数据库文件路径
-DB_PATH1 = os.path.join(DB_DIR, 'class_site.db')
-DB_PATH2 = os.path.join(DB_DIR, 'register.db')
-DB_PATH3 = os.path.join(DB_DIR, 'system_setting.db')
+# ---------- 初始化 ----------
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
 
-def load_user_data(db_path, filter_level=None, filter_status=None, search_query=None, sort_by='id', sort_order='asc', last_login_start=None, last_login_end=None, created_start=None, created_end=None, page=1, page_size=30):
+    # 1. 用户表（11 列，与插入语句一致）
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            username TEXT UNIQUE,
+            display_name TEXT,
+            password TEXT,
+            level INTEGER,
+            phone TEXT,
+            email TEXT,
+            is_banned INTEGER DEFAULT 0,
+            last_login TEXT,
+            created_at TEXT,
+            is_online INTEGER DEFAULT 0
+        )
+    ''')
+
+    # 2. 注册申请表
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS registration_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            display_name TEXT,
+            password TEXT,
+            phone TEXT,
+            email TEXT,
+            created_at TEXT,
+            status TEXT DEFAULT 'pending',
+            reviewed_by TEXT,
+            reviewed_at TEXT
+        )
+    ''')
+
+    # 3. 系统设置表
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS system_settings (
+            setting_name TEXT UNIQUE,
+            setting_value TEXT
+        )
+    ''')
+
+    # 4. 初始化默认管理员
+    c.execute('INSERT OR IGNORE INTO users VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+              ('1', 'admin', '管理员', '111111', 6, '12345678901',
+               'admin@example.com', 0, None, datetime.datetime.now().isoformat(), 0))
+
+    # 5. 默认注册状态
+    c.execute('INSERT OR IGNORE INTO system_settings VALUES (?,?)',
+              ('registration_status', 'open'))
+
+    conn.commit()
+    conn.close()
+
+# ---------- 分页 + 搜索 ----------
+def load_user_data(
+        filter_level=None, filter_status=None, search_query=None,
+        sort_by='id', sort_order='asc', last_login_start=None,
+        last_login_end=None, created_start=None, created_end=None,
+        page=1, page_size=30
+):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    sql = 'SELECT * FROM users WHERE 1=1'
+    params = []
+
+    # 等级
+    if filter_level is not None and str(filter_level).strip() != '':
+        sql += ' AND level = ?'
+        params.append(str(filter_level))
+
+    # 状态
+    if filter_status:
+        if filter_status == 'online':
+            sql += ' AND is_online = 1'
+        elif filter_status == 'offline':
+            sql += ' AND is_online = 0'
+        elif filter_status == 'banned':
+            sql += ' AND is_banned = 1'
+
+    # 多字段搜索
+    if search_query and search_query.strip() != '':
+        search_term = f'%{search_query.strip()}%'
+        sql += ' AND (id LIKE ? OR username LIKE ? OR display_name LIKE ?)'
+        # 统一使用文本匹配，不再尝试转换数字
+        params.extend([search_term, search_term, search_term])
+    # 日期筛选 - 转换为SQLite兼容的日期格式
+    if last_login_start:
+        try:
+            datetime.strptime(last_login_start, '%Y-%m-%d')
+            sql += ' AND last_login >= ?'
+            params.append(last_login_start + ' 00:00:00')
+        except ValueError:
+            pass  # 无效日期格式，忽略该条件
+
+    if last_login_end:
+        try:
+            datetime.strptime(last_login_end, '%Y-%m-%d')
+            sql += ' AND last_login < ?'
+            params.append(last_login_end + ' 23:59:59')
+        except ValueError:
+            pass  # 无效日期格式，忽略该条件
+
+    if created_start:
+        try:
+            datetime.strptime(created_start, '%Y-%m-%d')
+            sql += ' AND created_at >= ?'
+            params.append(created_start + ' 00:00:00')
+        except ValueError:
+            pass  # 无效日期格式，忽略该条件
+
+    if created_end:
+        try:
+            datetime.strptime(created_end, '%Y-%m-%d')
+            sql += ' AND created_at < ?'
+            params.append(created_end + ' 23:59:59')
+        except ValueError:
+            pass  # 无效日期格式，忽略该条件
+
+    # 验证排序字段是否合法，防止SQL注入
+    valid_sort_fields = ['id', 'username', 'display_name', 'level', 'last_login', 'created_at']
+    if sort_by not in valid_sort_fields:
+        sort_by = 'id'  # 默认按ID排序
+
+    # 验证排序顺序是否合法
+    sort_order = sort_order.lower()
+    if sort_order not in ['asc', 'desc']:
+        sort_order = 'asc'  # 默认升序
+
+    # 排序 + 分页
+    sql += f' ORDER BY {sort_by} {sort_order} LIMIT ? OFFSET ?'
+    params.extend([page_size, (page - 1) * page_size])
+
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        query = '''
-            SELECT * FROM users
-            WHERE 1=1
-        '''
-
-        params = []
-
-        # 等级筛选
-        if filter_level:
-            query += ' AND level = ?'
-            params.append(filter_level)
-
-        # 状态筛选
-        if filter_status:
-            if filter_status == 'online':
-                query += ' AND is_online = 1'
-            elif filter_status == 'offline':
-                query += ' AND is_online = 0'
-            elif filter_status == 'banned':
-                query += ' AND is_banned = 1'
-            elif filter_status == 'unbanned':
-                query += ' AND is_banned = 0'
-
-        # 关键字搜索
-        if search_query:
-            query += ' AND (username LIKE ? OR display_name LIKE ? OR id LIKE ?)'
-            search_param = f'%{search_query}%'
-            params.extend([search_param, search_param, search_param])
-
-        # 日期筛选
-        if last_login_start:
-            start_date = datetime.datetime.strptime(last_login_start, "%Y-%m-%d").isoformat()
-            query += ' AND last_login >= ?'
-            params.append(start_date)
-        if last_login_end:
-            end_date = datetime.datetime.strptime(last_login_end, "%Y-%m-%d") + datetime.timedelta(days=1)
-            end_date = end_date.isoformat()
-            query += ' AND last_login < ?'
-            params.append(end_date)
-        if created_start:
-            start_date = datetime.datetime.strptime(created_start, "%Y-%m-%d").isoformat()
-            query += ' AND created_at >= ?'
-            params.append(start_date)
-        if created_end:
-            end_date = datetime.datetime.strptime(created_end, "%Y-%m-%d") + datetime.timedelta(days=1)
-            end_date = end_date.isoformat()
-            query += ' AND created_at < ?'
-            params.append(end_date)
-
-        # 分页
-        query += f' ORDER BY {sort_by} {sort_order}'
-        query += ' LIMIT ? OFFSET ?'
-        params.extend([page_size, (page - 1) * page_size])
-
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-
+        cur.execute(sql, params)
+        rows = cur.fetchall()
+        users = [dict(zip([d[0] for d in cur.description], row)) for row in rows]
+    except Exception as e:
+        print(f"SQL执行错误: {e}")
+        print(f"SQL: {sql}")
+        print(f"参数: {params}")
         users = []
-        for row in rows:
-            users.append({
-                'id': row[0],
-                'username': row[1],
-                'display_name': row[2],
-                'password': row[3],
-                'level': row[4],
-                'phone': row[5],
-                'email': row[6],
-                'is_banned': row[7],
-                'last_login': row[8],
-                'created_at': row[9],
-                'is_online': row[10]
-            })
 
-        # 获取总记录数用于分页
-        count_query = '''
-            SELECT COUNT(*) FROM users
-            WHERE 1=1
-        '''
-        count_params = params[:-2]  # 排除分页参数
-        cursor.execute(count_query, count_params)
-        total = cursor.fetchone()[0]
+    # 计算总记录数
+    count_sql = 'SELECT COUNT(*) FROM users WHERE 1=1'
+    count_params = []
 
-        conn.close()
-        return {
-            'users': users,
-            'total': total,
-            'page': page,
-            'page_size': page_size
-        }
-    except Exception as e:
-        logging.error(f"加载用户数据失败: {e}")
-        return {'users': [], 'total': 0, 'page': 1, 'page_size': 30}
+    if filter_level is not None and str(filter_level).strip() != '':
+        count_sql += ' AND level = ?'
+        count_params.append(str(filter_level))
 
-def save_user_data(db_path, users):
+    if filter_status:
+        if filter_status == 'online':
+            count_sql += ' AND is_online = 1'
+        elif filter_status == 'offline':
+            count_sql += ' AND is_online = 0'
+        elif filter_status == 'banned':
+            count_sql += ' AND is_banned = 1'
+
+    # 修改搜索参数处理部分（原96-104行）
+    if search_query and search_query.strip() != '':
+        search_term = f'%{search_query.strip()}%'
+        sql += ' AND (id LIKE ? OR username LIKE ? OR display_name LIKE ?)'
+        # 统一使用文本匹配，不再尝试转换数字
+        params.extend([search_term, search_term, search_term])
+
+    if last_login_start:
+        try:
+            datetime.strptime(last_login_start, '%Y-%m-%d')
+            count_sql += ' AND last_login >= ?'
+            count_params.append(last_login_start + ' 00:00:00')
+        except ValueError:
+            pass
+
+    if last_login_end:
+        try:
+            datetime.strptime(last_login_end, '%Y-%m-%d')
+            count_sql += ' AND last_login < ?'
+            count_params.append(last_login_end + ' 23:59:59')
+        except ValueError:
+            pass
+
+    if created_start:
+        try:
+            datetime.strptime(created_start, '%Y-%m-%d')
+            count_sql += ' AND created_at >= ?'
+            count_params.append(created_start + ' 00:00:00')
+        except ValueError:
+            pass
+
+    if created_end:
+        try:
+            datetime.strptime(created_end, '%Y-%m-%d')
+            count_sql += ' AND created_at < ?'
+            count_params.append(created_end + ' 23:59:59')
+        except ValueError:
+            pass
+
     try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        for user in users:
-            cursor.execute('''
-                INSERT OR REPLACE INTO users 
-                (id, username, display_name, password, level, phone, email, is_banned, last_login, created_at, is_online)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                user['id'], user['username'], user['display_name'], user['password'], user['level'],
-                user['phone'], user['email'], user['is_banned'], user['last_login'], user['created_at'], user['is_online']
-            ))
-        conn.commit()
-        conn.close()
+        cur.execute(count_sql, count_params)
+        total = cur.fetchone()[0]
     except Exception as e:
-        logging.error(f"保存用户数据失败: {e}")
+        print(f"SQL计数错误: {e}")
+        total = 0
 
-def get_system_setting(db_path, setting_name):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute('SELECT setting_value FROM system_settings WHERE setting_name = ?', (setting_name,))
-        result = cursor.fetchone()
-        conn.close()
-        return result[0] if result else None
-    except Exception as e:
-        logging.error(f"获取系统设置失败: {e}")
-        return None
+    conn.close()
+    return {'users': users, 'total': total, 'page': page, 'page_size': page_size}
+# ---------- 工具 ----------
+def save_user_data(users):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
 
-def update_system_setting(db_path, setting_name, setting_value):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT OR REPLACE INTO system_settings 
-            (id, setting_name, setting_value)
-            VALUES ((SELECT id FROM system_settings WHERE setting_name = ?), ?, ?)
-        ''', (setting_name, setting_name, setting_value))
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        logging.error(f"更新系统设置失败: {e}")
-        return False
+    # 先清空表
+    cur.execute('DELETE FROM users')
 
-def log_access(db_path, user_id, username, ip_address, accessed_page, device_info):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO access_logs 
-            (user_id, username, ip_address, accessed_page, access_time, device_info)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (
-            user_id, username, ip_address, accessed_page, datetime.datetime.now().isoformat(), device_info
-        ))
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        logging.error(f"记录访问日志失败: {e}")
-        return False
+    # 批量插入新数据
+    cur.executemany('''
+        INSERT INTO users 
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
+        [(u['id'], u['username'], u['display_name'], u['password'], u['level'],
+          u['phone'], u['email'], u['is_banned'], u['last_login'],
+          u['created_at'], u['is_online']) for u in users])
 
-def get_access_logs(db_path, start_date=None, end_date=None, page=1, page_size=30):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
+    conn.commit()
+    conn.close()
 
-        query = '''
-            SELECT * FROM access_logs
-            WHERE 1=1
-        '''
+def get_system_setting(key, default=None):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute('SELECT setting_value FROM system_settings WHERE setting_name = ?', (key,))
+    row = cur.fetchone()
+    conn.close()
+    return row[0] if row else default
 
-        params = []
-
-        if start_date:
-            query += ' AND access_time >= ?'
-            params.append(start_date)
-        if end_date:
-            query += ' AND access_time < ?'
-            params.append(end_date)
-
-        query += ' ORDER BY access_time DESC LIMIT ? OFFSET ?'
-        params.extend([page_size, (page - 1) * page_size])
-
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-
-        logs = []
-        for row in rows:
-            logs.append({
-                'id': row[0],
-                'user_id': row[1],
-                'username': row[2],
-                'ip_address': row[3],
-                'accessed_page': row[4],
-                'access_time': row[5],
-                'device_info': row[6]
-            })
-
-        # 获取总记录数用于分页
-        count_query = '''
-            SELECT COUNT(*) FROM access_logs
-            WHERE 1=1
-        '''
-        count_params = params[:-2]  # 排除分页参数
-        cursor.execute(count_query, count_params)
-        total = cursor.fetchone()[0]
-
-        conn.close()
-        return {
-            'logs': logs,
-            'total': total,
-            'page': page,
-            'page_size': page_size
-        }
-    except Exception as e:
-        logging.error(f"加载访问日志失败: {e}")
-        return {'logs': [], 'total': 0, 'page': 1, 'page_size': 30}
-
-def get_article(db_path, id):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM articles WHERE id = ?', (id,))
-        row = cursor.fetchone()
-        conn.close()
-        if row:
-            return {
-                'id': row[0],
-                'title': row[1],
-                'content': row[2],
-                'author_id': row[3],
-                'author_name': row[4],
-                'created_at': row[5],
-                'updated_at': row[6],
-                'status': row[7]
-            }
-        return None
-    except Exception as e:
-        logging.error(f"获取文章失败: {e}")
-        return None
-
-def get_articles(db_path, title=None, author_id=None, status=None, page=1, page_size=10):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-
-        query = '''
-            SELECT * FROM articles
-            WHERE 1=1
-        '''
-
-        params = []
-
-        if title:
-            query += ' AND title LIKE ?'
-            params.append(f'%{title}%')
-        if author_id:
-            query += ' AND author_id = ?'
-            params.append(author_id)
-        if status:
-            query += ' AND status = ?'
-            params.append(status)
-
-        query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?'
-        params.extend([page_size, (page - 1) * page_size])
-
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-
-        articles = []
-        for row in rows:
-            articles.append({
-                'id': row[0],
-                'title': row[1],
-                'content': row[2],
-                'author_id': row[3],
-                'author_name': row[4],
-                'created_at': row[5],
-                'updated_at': row[6],
-                'status': row[7]
-            })
-
-        # 获取总记录数用于分页
-        count_query = '''
-            SELECT COUNT(*) FROM articles
-            WHERE 1=1
-        '''
-        count_params = params[:-2]  # 排除分页参数
-        cursor.execute(count_query, count_params)
-        total = cursor.fetchone()[0]
-
-        conn.close()
-        return {
-            'articles': articles,
-            'total': total,
-            'page': page,
-            'page_size': page_size
-        }
-    except Exception as e:
-        logging.error(f"加载文章失败: {e}")
-        return {'articles': [], 'total': 0, 'page': 1, 'page_size': 10}
-
-def create_article(db_path, title, content, author_id, author_name):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO articles 
-            (title, content, author_id, author_name, created_at, updated_at, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            title, content, author_id, author_name, datetime.datetime.now().isoformat(), datetime.datetime.now().isoformat(), 'draft'
-        ))
-        conn.commit()
-        conn.close()
-        return cursor.lastrowid
-    except Exception as e:
-        logging.error(f"创建文章失败: {e}")
-        return None
-
-def update_article(db_path, id, title, content, status):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute('''
-            UPDATE articles 
-            SET title = ?, content = ?, updated_at = ?, status = ?
-            WHERE id = ?
-        ''', (
-            title, content, datetime.datetime.now().isoformat(), status, id
-        ))
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        logging.error(f"更新文章失败: {e}")
-        return False
-
-def delete_article(db_path, id):
-    try:
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM articles WHERE id = ?', (id,))
-        conn.commit()
-        conn.close()
-        return True
-    except Exception as e:
-        logging.error(f"删除文章失败: {e}")
-        return False
+def update_system_setting(key, value):
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    cur.execute('INSERT OR REPLACE INTO system_settings (setting_name, setting_value) VALUES (?,?)', (key, value))
+    conn.commit()
+    conn.close()
