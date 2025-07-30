@@ -12,7 +12,7 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # 1. 用户表（11 列，与插入语句一致）
+    # 1. 用户表
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
@@ -53,37 +53,64 @@ def init_db():
         )
     ''')
 
-    # 4. 初始化默认管理员
-    c.execute('INSERT OR IGNORE INTO users VALUES (?,?,?,?,?,?,?,?,?,?,?)',
-              ('1', 'admin', '管理员', '111111', 6, '12345678901',
-               'admin@example.com', 0, None, datetime.datetime.now().isoformat(), 0))
+    # 4. 访问日志表
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS access_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            username TEXT,
+            operator_user_id TEXT,
+            operator_username TEXT,
+            action TEXT,
+            ip_address TEXT,
+            browser TEXT,
+            device_type TEXT,
+            access_time TEXT,
+            location TEXT
+        )
+    ''')
 
-    # 5. 默认注册状态
-    c.execute('INSERT OR IGNORE INTO system_settings VALUES (?,?)',
-              ('registration_status', 'open'))
+    # 5. 文章表
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS articles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            content TEXT,
+            author_id TEXT,
+            author_name TEXT,
+            created_at TEXT,
+            updated_at TEXT,
+            status TEXT DEFAULT 'draft'
+        )
+    ''')
+
+    # 默认系统设置：开放注册
+    c.execute('''INSERT OR IGNORE INTO system_settings (setting_name, setting_value)
+                 VALUES ('registration_status', 'open')''')
+
+    # 默认管理员
+    c.execute('''INSERT OR IGNORE INTO users
+                 (id, username, display_name, password, level, phone, email, created_at, is_online)
+                 VALUES ('1', 'admin', '管理员', '111111', 6, '12345678901', 'admin@example.com', ?, 0)''',
+              (datetime.datetime.now().isoformat(),))
 
     conn.commit()
     conn.close()
 
-# ---------- 分页 + 搜索 ----------
-def load_user_data(
-        filter_level=None, filter_status=None, search_query=None,
-        sort_by='id', sort_order='asc', last_login_start=None,
-        last_login_end=None, created_start=None, created_end=None,
-        page=1, page_size=30
-):
+# ---------- 分页 + 搜索建议者筛选 + 排序 ----------
+def load_user_data(filter_level=None, filter_status=None, search_query=None, sort_by='id', sort_order='asc', last_login_start=None, last_login_end=None, created_start=None, created_end=None, page=1, page_size=30):
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
     sql = 'SELECT * FROM users WHERE 1=1'
     params = []
 
-    # 等级
+    # 等级筛选
     if filter_level is not None and str(filter_level).strip() != '':
         sql += ' AND level = ?'
         params.append(str(filter_level))
 
-    # 状态
+    # 状态筛选
     if filter_status:
         if filter_status == 'online':
             sql += ' AND is_online = 1'
@@ -92,16 +119,16 @@ def load_user_data(
         elif filter_status == 'banned':
             sql += ' AND is_banned = 1'
 
-    # 多字段搜索
+    # 关键字搜索
     if search_query and search_query.strip() != '':
         search_term = f'%{search_query.strip()}%'
         sql += ' AND (id LIKE ? OR username LIKE ? OR display_name LIKE ?)'
-        # 统一使用文本匹配，不再尝试转换数字
         params.extend([search_term, search_term, search_term])
-    # 日期筛选 - 转换为SQLite兼容的日期格式
+
+    # 日期筛选 - 最后登录时间
     if last_login_start:
         try:
-            datetime.strptime(last_login_start, '%Y-%m-%d')
+            datetime.datetime.strptime(last_login_start, '%Y-%m-%d')
             sql += ' AND last_login >= ?'
             params.append(last_login_start + ' 00:00:00')
         except ValueError:
@@ -109,15 +136,16 @@ def load_user_data(
 
     if last_login_end:
         try:
-            datetime.strptime(last_login_end, '%Y-%m-%d')
+            datetime.datetime.strptime(last_login_end, '%Y-%m-%d')
             sql += ' AND last_login < ?'
             params.append(last_login_end + ' 23:59:59')
         except ValueError:
             pass  # 无效日期格式，忽略该条件
 
+    # 日期筛选 - 创建时间
     if created_start:
         try:
-            datetime.strptime(created_start, '%Y-%m-%d')
+            datetime.datetime.strptime(created_start, '%Y-%m-%d')
             sql += ' AND created_at >= ?'
             params.append(created_start + ' 00:00:00')
         except ValueError:
@@ -125,7 +153,7 @@ def load_user_data(
 
     if created_end:
         try:
-            datetime.strptime(created_end, '%Y-%m-%d')
+            datetime.datetime.strptime(created_end, '%Y-%m-%d')
             sql += ' AND created_at < ?'
             params.append(created_end + ' 23:59:59')
         except ValueError:
@@ -141,7 +169,7 @@ def load_user_data(
     if sort_order not in ['asc', 'desc']:
         sort_order = 'asc'  # 默认升序
 
-    # 排序 + 分页
+    # 分页
     sql += f' ORDER BY {sort_by} {sort_order} LIMIT ? OFFSET ?'
     params.extend([page_size, (page - 1) * page_size])
 
@@ -171,16 +199,14 @@ def load_user_data(
         elif filter_status == 'banned':
             count_sql += ' AND is_banned = 1'
 
-    # 修改搜索参数处理部分（原96-104行）
     if search_query and search_query.strip() != '':
         search_term = f'%{search_query.strip()}%'
-        sql += ' AND (id LIKE ? OR username LIKE ? OR display_name LIKE ?)'
-        # 统一使用文本匹配，不再尝试转换数字
-        params.extend([search_term, search_term, search_term])
+        count_sql += ' AND (id LIKE ? OR username LIKE ? OR display_name LIKE ?)'
+        count_params.extend([search_term, search_term, search_term])
 
     if last_login_start:
         try:
-            datetime.strptime(last_login_start, '%Y-%m-%d')
+            datetime.datetime.strptime(last_login_start, '%Y-%m-%d')
             count_sql += ' AND last_login >= ?'
             count_params.append(last_login_start + ' 00:00:00')
         except ValueError:
@@ -188,7 +214,7 @@ def load_user_data(
 
     if last_login_end:
         try:
-            datetime.strptime(last_login_end, '%Y-%m-%d')
+            datetime.datetime.strptime(last_login_end, '%Y-%m-%d')
             count_sql += ' AND last_login < ?'
             count_params.append(last_login_end + ' 23:59:59')
         except ValueError:
@@ -196,7 +222,7 @@ def load_user_data(
 
     if created_start:
         try:
-            datetime.strptime(created_start, '%Y-%m-%d')
+            datetime.datetime.strptime(created_start, '%Y-%m-%d')
             count_sql += ' AND created_at >= ?'
             count_params.append(created_start + ' 00:00:00')
         except ValueError:
@@ -204,7 +230,7 @@ def load_user_data(
 
     if created_end:
         try:
-            datetime.strptime(created_end, '%Y-%m-%d')
+            datetime.datetime.strptime(created_end, '%Y-%m-%d')
             count_sql += ' AND created_at < ?'
             count_params.append(created_end + ' 23:59:59')
         except ValueError:
@@ -219,6 +245,7 @@ def load_user_data(
 
     conn.close()
     return {'users': users, 'total': total, 'page': page, 'page_size': page_size}
+
 # ---------- 工具 ----------
 def save_user_data(users):
     conn = sqlite3.connect(DB_PATH)
@@ -230,10 +257,10 @@ def save_user_data(users):
     # 批量插入新数据
     cur.executemany('''
         INSERT INTO users 
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
-        [(u['id'], u['username'], u['display_name'], u['password'], u['level'],
-          u['phone'], u['email'], u['is_banned'], u['last_login'],
-          u['created_at'], u['is_online']) for u in users])
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+    ''', [(u['id'], u['username'], u['display_name'], u['password'], u['level'],
+           u['phone'], u['email'], u['is_banned'], u['last_login'],
+           u['created_at'], u['is_online']) for u in users])
 
     conn.commit()
     conn.close()

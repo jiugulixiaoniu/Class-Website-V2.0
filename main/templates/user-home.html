@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户简介 - 班级网站</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../static/css/userhome.css">
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>班级网站</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="#" class="active">首页</a>
+                    <a href="#">公告</a>
+                    <a href="#">资源</a>
+                    <a href="#">活动</a>
+                    <a href="#">成员</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <section class="profile-section">
+        <div class="container">
+            <div class="profile-container">
+                <div class="profile-main">
+                    <div id="profile-header" class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h1 id="profile-name" class="profile-name">加载中...</h1>
+                            <p id="profile-role" class="profile-role">加载中...</p>
+                            <p id="profile-bio" class="profile-bio">加载中...</p>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <div id="learning-hours" class="stat-value">0</div>
+                                    <div class="stat-label">学习时长 (小时)</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div id="completed-projects" class="stat-value">0</div>
+                                    <div class="stat-label">完成项目</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div id="awards-won" class="stat-value">0</div>
+                                    <div class="stat-label">获得奖项</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-card">
+                        <h3>个人资料</h3>
+                        <div class="detail-item">
+                            <div class="detail-label">用户名:</div>
+                            <div id="username" class="detail-value">加载中...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">真实姓名:</div>
+                            <div id="real-name" class="detail-value">加载中...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">性别:</div>
+                            <div id="gender" class="detail-value">加载中...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">年级:</div>
+                            <div id="grade" class="detail-value">加载中...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">班级:</div>
+                            <div id="class-info" class="detail-value">加载中...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">邮箱:</div>
+                            <div id="email" class="detail-value">加载中...</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">注册时间:</div>
+                            <div id="registration-date" class="detail-value">加载中...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-sidebar">
+                    <div class="sidebar-widget">
+                        <h3 class="sidebar-title">最近活动</h3>
+                        <ul id="activity-list" class="activity-list">
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">加载中...</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="sidebar-widget">
+                        <h3 class="sidebar-title">学习统计</h3>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="learningChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2023 班级网站 - 凝聚力量，共创未来</p>
+                <div class="footer-links">
+                    <a href="#">关于我们</a>
+                    <a href="#">使用条款</a>
+                    <a href="#">隐私政策</a>
+                    <a href="#">联系我们</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../static/js/userhome.js"></script>
+</body>
+</html>

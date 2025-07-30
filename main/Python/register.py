@@ -3,8 +3,8 @@ import sqlite3
 from flask import Blueprint, request, jsonify
 import datetime
 from database_utils import get_system_setting, update_system_setting, DB_PATH
+from log_activity import log_user_activity
 
-# 修改蓝图名称为 registration_bp
 registration_bp = Blueprint('registration', __name__)
 
 # ------------------ 注册 ------------------
@@ -30,7 +30,7 @@ def handle_register():
         if cur.fetchone():
             return jsonify({"error": "该用户名已提交过注册申请"}), 400
 
-        # 修改后的ID生成逻辑
+        # 获取当前最大ID
         cur.execute('SELECT MAX(id) FROM users')
         max_id = cur.fetchone()[0]
 
@@ -46,6 +46,7 @@ def handle_register():
             ''', (new_id, username, display_name, password, 1, phone, email,
                   datetime.datetime.now().isoformat(), 0))
             conn.commit()
+            log_user_activity('Register', str(new_id), display_name, operator_user_id='Self', operator_username='Self')
             return jsonify({"message": "注册成功"}), 201
 
         elif status == 'verify':
@@ -56,6 +57,7 @@ def handle_register():
             ''', (username, display_name, password, phone, email,
                   datetime.datetime.now().isoformat(), 'pending'))
             conn.commit()
+            log_user_activity('Register (pending)', username, display_name, operator_user_id='Self', operator_username='Self')
             return jsonify({"message": "注册申请已提交，等待管理员审核"}), 201
 
         else:  # closed
@@ -93,18 +95,18 @@ def review(req_id):
             return jsonify({"error": "申请不存在"}), 404
 
         if action == 'approve':
-            # 改为获取当前最大ID
+            # 获取当前最大ID
             cur.execute('SELECT MAX(id) FROM users')
             max_id = cur.fetchone()[0] or 0
             new_id = max_id + 1
 
             cur.execute('''
-                INSERT INTO users (id, username, display_name, password, level, phone, email, created_at) 
+                INSERT INTO users (id, username, display_name, password, level, phone, email, created_at)
                 VALUES (?,?,?,?,?,?,?,?)
             ''', (new_id, row[1], row[2], row[3], 1, row[4], row[5], datetime.datetime.now().isoformat()))
 
         cur.execute('UPDATE registration_requests SET status = ?, reviewed_by = ?, reviewed_at = ? WHERE id = ?',
-                    (action, 'admin', datetime.datetime.now().isoformat(), req_id))
+                   (action, 'admin', datetime.datetime.now().isoformat(), req_id))
         conn.commit()
 
         return jsonify({"message": f"已{action}"})

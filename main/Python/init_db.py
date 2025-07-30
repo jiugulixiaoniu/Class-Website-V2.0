@@ -13,20 +13,24 @@ def init_db():
 
     # 1. 用户表
     c.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id           INTEGER PRIMARY KEY AUTOINCREMENT,
-            username     TEXT UNIQUE,
-            display_name TEXT,
-            password     TEXT,
-            level        INTEGER,
-            phone        TEXT,
-            email        TEXT,
-            is_banned    INTEGER DEFAULT 0,
-            last_login   TEXT,
-            created_at   TEXT,
-            is_online    INTEGER DEFAULT 0
-        )
-    ''')
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE,
+                display_name TEXT,
+                password TEXT,
+                level INTEGER DEFAULT 1,
+                bio TEXT,
+                real_name TEXT,
+                gender TEXT,
+                grade TEXT,
+                class_info TEXT,
+                email TEXT,
+                registration_date TEXT,
+                learning_hours INTEGER DEFAULT 0,
+                completed_projects INTEGER DEFAULT 0,
+                awards_won INTEGER DEFAULT 0
+            )
+        ''')
 
     # 2. 注册申请表
     c.execute('''
@@ -54,18 +58,20 @@ def init_db():
 
     # 4. 访问日志表
     c.execute('''
-            CREATE TABLE IF NOT EXISTS access_logs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id TEXT,
-                username TEXT,
-                action TEXT,
-                ip_address TEXT,
-                browser TEXT,
-                device_type TEXT,
-                access_time TEXT,
-                location TEXT
-            )
-        ''')
+        CREATE TABLE IF NOT EXISTS access_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
+            username TEXT,
+            operator_user_id TEXT,
+            operator_username TEXT,
+            action TEXT,
+            ip_address TEXT,
+            browser TEXT,
+            device_type TEXT,
+            access_time TEXT,
+            location TEXT
+        )
+    ''')
 
     # 5. 文章表
     c.execute('''

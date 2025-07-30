@@ -37,6 +37,153 @@ function showNotification(message, type = 'success') {
 function initNotificationStyles() {
     const style = document.createElement('style');
     style.textContent = `
+        .recent-activities {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-top: 25px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .section-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .refresh-btn {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 13px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .refresh-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .activity-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .activity-item.loading {
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+        }
+        
+        .activity-item.error {
+            background: #fff8f8;
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-right: 15px;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        
+        .activity-user {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .activity-content p {
+            margin: 0;
+            font-size: 14px;
+            color: #495057;
+            line-height: 1.5;
+        }
+        
+        .activity-action {
+            font-weight: 500;
+        }
+        
+        .activity-target {
+            background: #e3f2fd;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 5px;
+            font-weight: 500;
+        }
+        
+        .activity-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .activity-ip, .activity-location {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .activity-ip::before {
+            content: "🌐";
+            font-size: 14px;
+        }
+        
+        .activity-location::before {
+            content: "📍";
+            font-size: 14px;
+        }
         /* 通知容器 */
         .notification-container {
             position: fixed;
@@ -149,6 +296,7 @@ function hideLoading() {
 function initLoadingStyles() {
     const style = document.createElement('style');
     style.textContent = `
+        /* 加载提示框 */
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -244,7 +392,10 @@ function initPaginationListeners() {
         });
     });
 }
-
+document.addEventListener('DOMContentLoaded', function() {
+    fetchDashboardStats(); // 立即更新一次
+    setInterval(fetchDashboardStats, 60000); // 每分钟更新一次
+});
 function updateMembersTableWithSearch(data) {
     const tbody = document.querySelector('.members-table tbody');
     if (!Array.isArray(data)) {
@@ -267,7 +418,36 @@ function updateMembersTableWithSearch(data) {
         updateMembersTable(data);
     }
 }
+document.addEventListener('DOMContentLoaded', function() {
+    // ...其他初始化代码...
 
+    // 初始化控制台图表
+    if (document.getElementById('visits-chart')) {
+        renderVisitsChart();
+    }
+
+    // 当切换到控制台页面时刷新图表
+    document.querySelector('[href="#dashboard"]').addEventListener('click', function() {
+        if (document.getElementById('visits-chart')) {
+            renderVisitsChart();
+        }
+    });
+});
+
+function initChartAutoRefresh() {
+    // 每10分钟刷新一次数据
+    setInterval(() => {
+        if (document.querySelector('#dashboard.active') && document.getElementById('visits-chart')) {
+            renderVisitsChart();
+        }
+    }, 600000); // 10分钟
+}
+
+// 在DOMContentLoaded中调用
+document.addEventListener('DOMContentLoaded', function() {
+    // ...其他代码...
+    initChartAutoRefresh();
+});
 // 封装 fetchMembers 函数，添加筛选和排序功能
 async function fetchMembersWithFilter() {
     try {
@@ -330,12 +510,31 @@ document.addEventListener('DOMContentLoaded', function() {
     initFilterListeners();
     initPaginationListeners();
     fetchLogs();
+
     const refreshButton = document.getElementById('refreshLogs');
     if (refreshButton) {
         refreshButton.addEventListener('click', function() {
             fetchLogs();
         });
     }
+
     // 初始化页面时获取成员列表
     fetchMembersWithFilter();
+
+    // 初始化最近活动 - 确保只调用一次
+    if (typeof fetchRecentActivities === 'function') {
+        fetchRecentActivities();
+
+        // 添加刷新按钮事件
+        const refreshActivitiesBtn = document.getElementById('refreshActivities');
+        if (refreshActivitiesBtn) {
+            refreshActivitiesBtn.addEventListener('click', function() {
+                fetchRecentActivities();
+                showNotification('活动数据已刷新', 'success');
+            });
+        }
+
+        // 每2分钟自动刷新活动数据
+        setInterval(fetchRecentActivities, 120000);
+    }
 });

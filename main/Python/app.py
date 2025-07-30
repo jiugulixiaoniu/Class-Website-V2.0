@@ -1,29 +1,36 @@
 # app.py
 import sqlite3
-
 from flask import Flask, request, jsonify, render_template
 import jwt
 import datetime
 import logging
 from flask_cors import CORS
 from log_activity import log_user_activity, init_logging
-from register import registration_bp  # 更新为新的蓝图名称
+from register import registration_bp
 from database_utils import init_db, load_user_data, save_user_data, DB_PATH
-
+from user_home import user_home_bp  # 导入用户首页蓝图
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-app.secret_key = 'dev_secret_key_here'  # 请确保设置一个安全的密钥
+app.secret_key = 'dev_sfsdgdgdfhrtjfjghj454y7ugyid21ddgdfheredev_ev_secret_keyret_key_hered_here'  # 请确保设置一个安全的密钥
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # 注册蓝图时使用新的蓝图名称
 app.register_blueprint(registration_bp)  # 更新为新的蓝图名称
-
+app.register_blueprint(user_home_bp)  # 注册新的蓝图
 # 初始化数据库
 init_db()
 
 init_logging()  # 新增初始化日志
 
+LEVEL_COLORS = {
+    1: "#3498db",
+    2: "#2ecc71",
+    3: "#e67e22",
+    4: "#9b59b6",
+    5: "#e74c3c",
+    6: "#f1c40f"
+}
 # 登录
 @app.route('/api/login', methods=['POST'])
 def handle_login():
@@ -42,7 +49,7 @@ def handle_login():
             user = next((user for user in users['users'] if user['username'] == login_id and user['password'] == password and not user['is_banned']), None)
 
         if not user:
-            log_user_activity('Failed login attempt', username=login_id)  # 新增日志记录
+            log_user_activity('Failed login attempt', username=login_id, operator_user_id='Unknown', operator_username='Unknown')
             return jsonify({"error": "用户名或密码错误，或用户已被封禁"}), 401
 
         payload = {
@@ -58,8 +65,7 @@ def handle_login():
         updated_users.append(user)
         save_user_data(updated_users)
 
-        log_user_activity('Successful login', user['id'], user['username'])  # 新增日志记录
-
+        log_user_activity('Successful login', user['id'], user['username'], operator_user_id=user['id'], operator_username=user['username'])
         return jsonify({
             "token": token,
             "level": user['level'],
@@ -69,7 +75,7 @@ def handle_login():
         })
     except Exception as e:
         logging.error(f"登录错误: {e}")
-        log_user_activity('Login error', username=login_id)  # 新增日志记录
+        log_user_activity('Login error', username=login_id, operator_user_id='Unknown', operator_username='Unknown')
         return jsonify({"error": "登录失败，请检查网络连接"}), 500
 
 # 登出
@@ -92,16 +98,16 @@ def handle_logout():
         updated_users = [u for u in users['users'] if u['id'] != user['id']]
         updated_users.append(user)
         save_user_data(updated_users)
-        log_user_activity('Logout', user_id, username_val)  # 添加日志记录
+        log_user_activity('Logout', user_id, username_val, operator_user_id=user_id, operator_username=username_val)
         return jsonify({"message": "Logout successful"})
     except jwt.ExpiredSignatureError:
-        log_user_activity('Logout attempt with expired token', username=username_val)  # 添加日志记录
+        log_user_activity('Logout attempt with expired token', username=username_val, operator_user_id='Unknown', operator_username='Unknown')
         return jsonify({"error": "Token已过期"}), 401
     except jwt.InvalidTokenError:
-        log_user_activity('Logout attempt with invalid token', username=username_val)  # 添加日志记录
+        log_user_activity('Logout attempt with invalid token', username=username_val, operator_user_id='Unknown', operator_username='Unknown')
         return jsonify({"error": "无效的Token"}), 401
     except Exception as e:
-        log_user_activity('Logout error', username=username_val)  # 添加日志记录
+        log_user_activity('Logout error', username=username_val, operator_user_id='Unknown', operator_username='Unknown')
         return jsonify({"error": str(e)}), 500
 
 # 验证Token
@@ -240,6 +246,7 @@ def add_member():
         }
         users['users'].append(new_user)
         save_user_data(users['users'])
+        log_user_activity('Add member', new_id, display_name, operator_user_id='id', operator_username='username')
         return jsonify(new_user), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -269,7 +276,7 @@ def ban_member(id):
 
         # 记录操作日志
         action = 'Unban member' if not user['is_banned'] else 'Ban member'
-        log_user_activity(action, user['id'], user['username'])
+        log_user_activity(action, user['id'], user['username'], operator_user_id=payload.get('id'), operator_username=payload.get('username'))
 
         return jsonify({
             'unbanned': not user['is_banned'],
@@ -300,8 +307,7 @@ def delete_member(id):
 
         updated_users = [u for u in users['users'] if u['id'] != id]
         save_user_data(updated_users)
-
-        log_user_activity('Delete member', user['id'], user['username'])
+        log_user_activity('Delete member', user['id'], user['username'], operator_user_id=payload.get('id'), operator_username=payload.get('username'))
         return jsonify({"message": f"成员 {user['display_name']} 已删除"})
     except Exception as e:
         logging.error(f"删除成员错误: {e}")
@@ -342,7 +348,7 @@ def edit_member(id):
         save_user_data(updated_users)
 
         # 记录操作日志
-        log_user_activity('Edit member', user['id'], user['username'])
+        log_user_activity('Edit member', user['id'], user['username'], operator_user_id=payload.get('id'), operator_username=payload.get('username'))
 
         return jsonify(user)
     except Exception as e:
@@ -364,17 +370,144 @@ def get_logs():
                 'id': row[0],
                 'user_id': row[1],
                 'username': row[2],
-                'action': row[3],
-                'ip_address': row[4],
-                'browser': row[5],
-                'device_type': row[6],
-                'access_time': row[7],
-                'location': row[8]
+                'operator_user_id': row[3],
+                'operator_username': row[4],
+                'action': row[5],
+                'ip_address': row[6],
+                'browser': row[7],
+                'device_type': row[8],
+                'access_time': row[9],
+                'location': row[10]
             }
             logs.append(log)
 
         conn.close()
         return jsonify(logs)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+# 获取统计数据
+@app.route('/api/stats', methods=['GET'])
+def get_stats():
+    try:
+        # 获取在线人数
+        online_users = len([user for user in load_user_data()['users'] if user.get('is_online', False)])
+
+        # 获取注册人数
+        registered_users = len(load_user_data()['users'])
+
+        # 获取文章总数（这里先返回固定值，后续可以接入实际数据）
+        article_count = 42
+
+        # 获取今日访问量
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('SELECT COUNT(*) FROM access_logs WHERE date(access_time) = ?', (today,))
+        today_visits = cursor.fetchone()[0]
+        conn.close()
+
+        return jsonify({
+            "online_users": online_users,
+            "registered_users": registered_users,
+            "article_count": article_count,
+            "today_visits": today_visits
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/visits/weekly', methods=['GET'])
+def get_weekly_visits():
+    try:
+        # 验证 JWT 令牌
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({"error": "Unauthorized"}), 401
+        token = auth_header.split(' ')[1]
+        jwt.decode(token, app.secret_key, algorithms=['HS256'])
+
+        # 计算最近7天的日期
+        end_date = datetime.datetime.now()
+        start_date = end_date - datetime.timedelta(days=6)
+
+        # 初始化日期列表
+        date_list = []
+        current_date = start_date
+        while current_date <= end_date:
+            date_list.append(current_date.strftime('%Y-%m-%d'))
+            current_date += datetime.timedelta(days=1)
+
+        # 查询数据库
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        # 获取每日访问量
+        daily_visits = []
+        for date_str in date_list:
+            cursor.execute('SELECT COUNT(*) FROM access_logs WHERE date(access_time) = ?', (date_str,))
+            count = cursor.fetchone()[0]
+            daily_visits.append(count)
+
+        conn.close()
+
+        return jsonify({
+            "dates": date_list,
+            "visits": daily_visits,
+            "total": sum(daily_visits)
+        })
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Token已过期"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "无效的Token"}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/api/activities/recent', methods=['GET'])
+def get_recent_activities():
+    try:
+        # 验证JWT令牌
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({"error": "Unauthorized"}), 401
+
+        token = auth_header.split(' ')[1]
+        jwt.decode(token, app.secret_key, algorithms=['HS256'])
+
+        # 查询数据库获取最近5条日志
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM access_logs 
+            ORDER BY access_time DESC 
+            LIMIT 5
+        ''')
+        rows = cursor.fetchall()
+        conn.close()
+
+        # 转换为字典格式
+        logs = []
+        for row in rows:
+            log = {
+                'id': row[0],
+                'user_id': row[1],
+                'username': row[2],
+                'operator_user_id': row[3],
+                'operator_username': row[4],
+                'action': row[5],
+                'ip_address': row[6],
+                'browser': row[7],
+                'device_type': row[8],
+                'access_time': row[9],
+                'location': row[10]
+            }
+            logs.append(log)
+
+        return jsonify(logs)
+    except jwt.ExpiredSignatureError:
+        return jsonify({"error": "Token已过期"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"error": "无效的Token"}), 401
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 if __name__ == '__main__':

@@ -54,7 +54,7 @@
                     </div>
                     <div class="stat-info">
                         <h3>在线人数</h3>
-                        <p class="stat-value">12</p>
+                        <p class="stat-value" id="onlineUsers"></p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -63,7 +63,7 @@
                     </div>
                     <div class="stat-info">
                         <h3>注册人数</h3>
-                        <p class="stat-value">356</p>
+                        <p class="stat-value" id="registeredUsers"></p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -72,7 +72,7 @@
                     </div>
                     <div class="stat-info">
                         <h3>文章总数</h3>
-                        <p class="stat-value">42</p>
+                        <p class="stat-value" id="articleCount"></p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -80,8 +80,8 @@
                         <i class="fas fa-eye"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>今日访问量</h3>
-                        <p class="stat-value">87</p>
+                        <h3>今日活动量</h3>
+                        <p class="stat-value" id="todayVisits"></p>
                     </div>
                 </div>
             </div>
@@ -89,7 +89,7 @@
             <div class="dashboard-charts">
                 <div class="chart-container">
                     <h3>最近一周访问量</h3>
-                    <div class="chart-placeholder" id="visits-chart"></div>
+                    <canvas id="visits-chart"></canvas>
                 </div>
                 <div class="chart-container">
                     <h3>用户活跃度</h3>
@@ -98,28 +98,16 @@
             </div>
 
             <div class="recent-activities">
-                <h3>最近活动</h3>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon edit"><i class="fas fa-edit"></i></div>
-                        <div class="activity-content">
-                            <p>管理员 编辑了文章 <strong>"班级活动总结"</strong></p>
-                            <span class="activity-time">10分钟前</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon add"><i class="fas fa-plus"></i></div>
-                        <div class="activity-content">
-                            <p>管理员 添加了新成员 <strong>"张三"</strong></p>
-                            <span class="activity-time">1小时前</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon login"><i class="fas fa-sign-in-alt"></i></div>
-                        <div class="activity-content">
-                            <p>张三 登录了系统</p>
-                            <span class="activity-time">2小时前</span>
-                        </div>
+                <div class="section-header">
+                    <h3>最近活动</h3>
+                    <button class="btn refresh-btn" id="refreshActivities">
+                        <i class="fas fa-sync-alt"></i> 刷新
+                    </button>
+                </div>
+                <div class="activity-list" id="activity-list">
+                    <!-- 活动项将通过 JavaScript 动态加载 -->
+                    <div class="activity-item loading">
+                        <div class="activity-icon"><i class="fas fa-spinner fa-spin"></i></div>
                     </div>
                 </div>
             </div>
@@ -130,7 +118,7 @@
             <div class="section-header">
                 <h3>成员管理</h3>
                 <div class="section-actions">
-                    <button class="btn primary-btn"><i class="fas fa-plus"></i> 添加成员</button>
+                    <button class="btn primary-btn" onclick="window.location.href='register.html'"><i class="fas fa-plus"></i> 添加成员</button>
                 </div>
             </div>
 
@@ -350,6 +338,8 @@
                     <thead>
                         <tr>
                             <th>ID</th>
+                            <th>操作ID</th>
+                            <th>操作用户名</th>
                             <th>用户ID</th>
                             <th>用户名</th>
                             <th>操作</th>
@@ -450,7 +440,7 @@
             </div>
         </section>
     </main>
-
+    <script src="../static/js/cdn.jsdelivr.net_npm_chart.js"></script>
     <script src="../static/js/admin/admin.js"></script>
     <script src="../static/js/auth.js"></script>
     <script src="../static/js/admin/UI-admin.js"></script>

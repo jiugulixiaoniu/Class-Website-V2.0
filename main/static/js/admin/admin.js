@@ -23,7 +23,49 @@ function updateMembersTable(data) {
         </tr>
     `).join('');
 }
+const activityIcons = {
+    'login': 'fas fa-sign-in-alt',
+    'logout': 'fas fa-sign-out-alt',
+    'add': 'fas fa-plus',
+    'edit': 'fas fa-edit',
+    'delete': 'fas fa-trash',
+    'ban': 'fas fa-ban',
+    'unban': 'fas fa-unlock',
+    'register': 'fas fa-user-plus',
+    'view': 'fas fa-eye',
+    'error': 'fas fa-exclamation-circle',
+    'default': 'fas fa-history'
+};
 
+// 活动类型颜色映射
+const activityColors = {
+    'login': '#4CAF50',
+    'logout': '#F44336',
+    'add': '#2196F3',
+    'edit': '#FFC107',
+    'delete': '#9C27B0',
+    'ban': '#E91E63',
+    'unban': '#009688',
+    'register': '#3F51B5',
+    'view': '#00BCD4',
+    'error': '#FF5722',
+    'default': '#607D8B'
+};
+
+// 活动类型文本映射
+const activityTexts = {
+    'login': '登录了系统',
+    'logout': '登出了系统',
+    'add': '添加了',
+    'edit': '编辑了',
+    'delete': '删除了',
+    'ban': '封禁了',
+    'unban': '解封了',
+    'register': '注册了',
+    'view': '查看了',
+    'error': '发生了错误',
+    'default': '执行了操作'
+};
 // 获取成员数据
 async function fetchMembers() {
     try {
@@ -390,6 +432,8 @@ function updateLogsTable(logs) {
     tbody.innerHTML = logs.map(log => `
         <tr>
             <td>${log.id}</td>
+            <td>${log.operator_user_id}</td>
+            <td>${log.operator_username}</td>
             <td>${log.user_id}</td>
             <td>${log.username}</td>
             <td>${log.action}</td>
@@ -412,6 +456,244 @@ function getBrowserName(userAgent) {
     if (userAgent.includes('opera')) return 'Opera';
     return '其他浏览器';
 }
+// 新增控制台数据获取函数
+async function fetchDashboardStats() {
+    try {
+        // 修正API路径
+        const response = await fetch('http://localhost:5000/api/stats');
+        if (!response.ok) {
+            throw new Error('获取统计信息失败');
+        }
+        const data = await response.json();
+
+        // 修正字段名
+        document.getElementById('onlineUsers').textContent = data.online_users;
+        document.getElementById('registeredUsers').textContent = data.registered_users;
+        document.getElementById('articleCount').textContent = data.article_count;
+        document.getElementById('todayVisits').textContent = data.today_visits;
+    } catch (error) {
+        console.error('获取统计信息失败:', error);
+        showNotification('无法获取控制台数据', 'error');
+    }
+}
+async function renderVisitsChart() {
+    try {
+        const response = await fetch('http://localhost:5000/api/visits/weekly', {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('获取访问量数据失败');
+        }
+
+        const data = await response.json();
+
+        // 获取 canvas 元素
+        const ctx = document.getElementById('visits-chart').getContext('2d');
+
+        // 如果已存在图表实例，先销毁
+        if (window.visitsChart) {
+            window.visitsChart.destroy();
+        }
+
+        // 创建新图表
+        window.visitsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.dates,
+                datasets: [{
+                    label: '每日访问量',
+                    data: data.visits,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: `最近一周访问量: ${data.total} 次`,
+                        font: {
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        padding: 10,
+                        callbacks: {
+                            label: function(context) {
+                                return `访问量: ${context.parsed.y}`;
+                            },
+                            title: function(context) {
+                                return context[0].label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        },
+                        title: {
+                            display: true,
+                            text: '访问次数'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '日期'
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'nearest'
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error('渲染访问量图表失败:', error);
+        showNotification('无法加载访问量图表', 'error');
+    } finally {
+        if (loadingElement) loadingElement.style.display = 'none';
+    }
+}
+
+
+// 获取最近活动数据
+async function fetchRecentActivities() {
+    try {
+        const response = await fetch('http://localhost:5000/api/activities/recent', {
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('获取活动数据失败');
+        }
+
+        const activities = await response.json();
+        renderActivities(activities);
+    } catch (error) {
+        console.error('获取最近活动失败:', error);
+        showNotification('无法获取最近活动数据', 'error');
+        // 显示错误状态
+        document.getElementById('activity-list').innerHTML = `
+            <div class="activity-item error">
+                <div class="activity-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="activity-content">
+                    <p>无法加载活动数据</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// 渲染活动数据
+function renderActivities(activities) {
+    const container = document.getElementById('activity-list');
+
+    if (!activities || activities.length === 0) {
+        container.innerHTML = `
+            <div class="activity-item">
+                <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
+                <div class="activity-content">
+                    <p>暂无活动记录</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = '';
+    activities.forEach(activity => {
+        // 从动作中提取类型（第一个单词）
+        const actionType = activity.action.toLowerCase().split(' ')[0];
+
+        // 获取对应的图标、颜色和文本
+        const icon = activityIcons[actionType] || activityIcons['default'];
+        const color = activityColors[actionType] || activityColors['default'];
+        const text = activityTexts[actionType] || activityTexts['default'];
+
+        // 格式化时间
+        const formattedTime = formatTimeAgo(activity.access_time);
+
+        // 创建活动项HTML
+        html += `
+            <div class="activity-item">
+                <div class="activity-icon" style="background-color: ${color}">
+                    <i class="${icon}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-header">
+                        <span class="activity-user">${activity.operator_username}</span>
+                        <span class="activity-time">${formattedTime}</span>
+                    </div>
+                    <p>
+                        <span class="activity-action">${activity.action}</span>
+                        ${activity.username !== activity.operator_username ? 
+                          `<span class="activity-target">${activity.username}</span>` : ''}
+                    </p>
+                    <div class="activity-meta">
+                        <span class="activity-ip">${activity.ip_address}</span>
+                        <span class="activity-location">${activity.location || '未知位置'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+// 格式化时间为"XX前"的格式
+function formatTimeAgo(timestamp) {
+    const now = new Date();
+    const activityTime = new Date(timestamp);
+    const diffSeconds = Math.floor((now - activityTime) / 1000);
+
+    if (diffSeconds < 60) {
+        return `${diffSeconds}秒前`;
+    }
+
+    const diffMinutes = Math.floor(diffSeconds / 60);
+    if (diffMinutes < 60) {
+        return `${diffMinutes}分钟前`;
+    }
+
+    const diffHours = Math.floor(diffMinutes / 60);
+    if (diffHours < 24) {
+        return `${diffHours}小时前`;
+    }
+
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays}天前`;
+}
+// 确保在DOM加载时调用
 
 // 初始化时钟并每秒更新
 updateClock();
