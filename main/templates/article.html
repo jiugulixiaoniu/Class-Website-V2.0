@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布文章 - 班级网站</title>
+
+    <!-- Toast-UI Editor 核心样式 -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css">
+    <!-- 代码高亮主题 -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor-plugin-code-syntax-highlight/latest/toastui-editor-plugin-code-syntax-highlight.min.css">
+    <!-- FontAwesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 项目原样式 -->
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link rel="stylesheet" href="../static/css/article.css">
+</head>
+<body>
+
+<!-- 头部导航 -->
+<nav>
+    <div class="container nav-container">
+        <a href="#" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>班级网站</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="#">首页</a></li>
+            <li><a href="#">班级公告</a></li>
+            <li><a href="toolbox.html">工具箱</a></li>
+            <li><a href="#">班级相册</a></li>
+            <li><a href="#">活动安排</a></li>
+            <li><a href="#">关于我们</a></li>
+        </ul>
+        <div class="user-section">
+            <div class="user-info">
+                <span class="user-display-name" id="usernameDisplay"></span>
+                <span class="welcome-message" id="welcomeMessage"></span>
+            </div>
+            <div class="user-actions">
+                <a href="login.html" class="btn login-btn" id="loginBtn">登录</a>
+                <a href="#" class="btn register-btn" id="registerBtn">注册</a>
+                <a href="#" class="btn logout-btn" id="logoutBtn" style="display: none;">退出</a>
+            </div>
+        </div>
+        <button class="mobile-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+</nav>
+
+<!-- 主要内容区域 -->
+<main class="container">
+    <section class="article-editor">
+        <h2>发布新文章</h2>
+
+        <!-- Toast-UI Editor 容器 -->
+        <div id="editor-content"></div>
+
+        <div class="article-form">
+            <div class="form-group">
+                <label for="article-title">标题</label>
+                <input type="text" id="article-title" placeholder="输入文章标题" required>
+            </div>
+            <div class="form-group">
+                <label for="article-status">状态</label>
+                <select id="article-status">
+                    <option value="draft">草稿</option>
+                    <option value="published">发布</option>
+                    <option value="archived">存档</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn draft-btn" id="draft-btn">保存草稿</button>
+                <button class="btn publish-btn" id="publish-article">发布文章</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- 页脚 -->
+<footer>
+    <div class="container footer-container">
+        <div class="footer-info">
+            <h3><i class="fas fa-graduation-cap"></i> 班级网站</h3>
+            <p>凝聚班级力量，记录成长点滴，共创美好未来</p>
+            <div class="social-icons">
+                <a href="https://space.bilibili.com/3546617818909179"><i class="fab fa-bilibili"></i></a>
+                <a href="https://github.com/jiugulixiaoniu/CWBS-V2.0"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+        <div class="footer-links">
+            <h4>快速链接</h4>
+            <ul>
+                <li><a href="#">首页</a></li>
+                <li><a href="#">班级公告</a></li>
+                <li><a href="#">学习资源</a></li>
+                <li><a href="#">班级相册</a></li>
+                <li><a href="toolbox.html">工具箱</a></li>
+                <li><a href="#">关于我们</a></li>
+            </ul>
+        </div>
+        <div class="footer-contact">
+            <h4>联系我们</h4>
+            <ul>
+                <li><i class="fas fa-envelope"></i> starrysea2312@yeah.net</li>
+                <li><i class="fas fa-phone"></i> none</li>
+                <li><i class="fas fa-map-marker-alt"></i> 南平市建阳第二中学</li>
+            </ul>
+        </div>
+    </div>
+    <div class="copyright">
+        <p>&copy; 2023 JGL Studio. 保留所有权利</p>
+    </div>
+</footer>
+
+<!-- Toast-UI Editor 核心 JS -->
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<!-- 代码高亮插件 -->
+<script src="https://uicdn.toast.com/editor-plugin-code-syntax-highlight/latest/toastui-editor-plugin-code-syntax-highlight-all.min.js"></script>
+<!-- 项目脚本 -->
+<script src="../static/js/article.js"></script>
+<script src="../static/js/auth.js"></script>
+</body>
+</html>

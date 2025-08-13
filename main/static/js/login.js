@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('token');
             if (!token) {
                 // 如果没有令牌，检查是否在登录页面，是的话不执行任何操作
-                if (window.location.pathname.includes('/login')) {
+                if (window.location.pathname.includes('login.html')) {
                     return;
                 } else {
                     // 如果在其他页面，则重定向到登录页面
-                    window.location.href = '/login';
+                    window.location.href = 'login.html';
                 }
             }
 
@@ -71,12 +71,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 console.error('获取当前用户失败:', data.error);
                 // 如果获取当前用户失败，重定向到登录页面
-                window.location.href = '/login';
+                window.location.href = 'login.html';
             }
         } catch (error) {
             console.error('获取当前用户失败:', error);
             // 如果发生错误，重定向到登录页面
-            window.location.href = '/login';
+            window.location.href = 'login.html';
         }
     }
 

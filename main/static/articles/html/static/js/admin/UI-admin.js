@@ -538,27 +538,3 @@ document.addEventListener('DOMContentLoaded', function() {
         setInterval(fetchRecentActivities, 120000);
     }
 });
-document.querySelector('[href="#articles"]').addEventListener('click', function() {
-        if (typeof initArticlesSection === 'function') {
-            initArticlesSection();
-        }
-    });
-
-    // 如果当前已经是文章页面，直接初始化
-    if (document.querySelector('#articles.active')) {
-        initArticlesSection();
-    }
-// 文章搜索
-document.getElementById('articleSearchBtn').addEventListener('click', () => {
-    fetchArticles(1);
-});
-
-// 初始化文章管理
-function initArticlesSection() {
-    fetchArticles(1);
-
-    // 发布新文章按钮
-    document.getElementById('publishNewArticle').addEventListener('click', () => {
-        window.location.href = 'article.html';
-    });
-}

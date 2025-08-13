@@ -1,0 +1,154 @@
+        body {
+                    background-color: #fff !important;
+                    color: #333 !important;
+        }
+
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+            background-color: #fff; /* 确保背景为白色 */
+            color: #24292e; /* 确保文字为深色 */
+        }
+
+        /* 修复代码块样式 */
+        .markdown-body pre, .markdown-body code {
+            background-color: #f6f8fa !important; /* GitHub风格的代码背景 */
+            color: #24292e !important; /* 代码文字颜色 */
+        }
+
+        /* 修复行内代码样式 */
+        .markdown-body code {
+            padding: 0.2em 0.4em;
+            margin: 0;
+            font-size: 85%;
+            background-color: rgba(27,31,35,0.05);
+            border-radius: 3px;
+        }
+
+        /* 修复表格样式 */
+        .markdown-body table {
+            display: table;
+            width: 100%;
+            overflow: auto;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .markdown-body table th,
+        .markdown-body table td {
+            padding: 6px 13px;
+            border: 1px solid #dfe2e5;
+        }
+
+        .markdown-body table tr {
+            background-color: #fff;
+            border-top: 1px solid #c6cbd1;
+        }
+
+        .markdown-body table tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+
+        .markdown-body table th {
+            font-weight: 600;
+            background-color: #f6f8fa;
+        }
+
+        /* 修复导航栏样式 */
+        nav {
+            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 修复页脚样式 */
+        footer {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
+
+        @media (max-width: 767px) {
+            .markdown-body {
+                padding: 15px;
+            }
+        }
+
+        .article-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: #fff; /* 确保背景为白色 */
+        }
+
+        .meta {
+            color: #666;
+            font-size: 0.9em;
+            margin: 15px 0 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .author {
+            font-weight: bold;
+            margin-right: 20px;
+        }
+
+        .date {
+            color: #888;
+        }
+
+        .article-actions {
+            margin: 30px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .edit-btn {
+            background-color: #4e73df;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #e74a3b;
+            color: white;
+        }
+
+        .back-btn {
+            background-color: #f8f9fc;
+            color: #6c757d;
+            border: 1px solid #ddd;
+        }
+
+        /* 错误消息样式 */
+        .error-message {
+            padding: 20px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c2c7;
+            border-radius: 4px;
+            color: #842029;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .error-message i {
+            margin-right: 10px;
+        }
+
+        /* 加载中样式 */
+        .loading {
+            text-align: center;
+            padding: 30px;
+            color: #6c757d;
+        }

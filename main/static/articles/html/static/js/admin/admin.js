@@ -694,165 +694,69 @@ function formatTimeAgo(timestamp) {
     return `${diffDays}天前`;
 }
 // 确保在DOM加载时调用
-async function fetchArticles(page = 1) {
+async function fetchArticles() {
     try {
-        showLoading();
-
-        // 获取搜索参数
-        const search = document.getElementById('articleSearch').value;
-        const status = document.querySelector('.articles-tabs .tab-btn.active').dataset.status || 'all';
-
-        // 构建查询参数
-        const params = new URLSearchParams({
-            search: search,
-            status: status,
-            page: page,
-            page_size: 10
-        });
-
-        // 发送请求
-        const response = await fetch(`http://localhost:5000/api/articles?${params.toString()}`);
+        const response = await fetch('http://localhost:5000/api/articles');
         if (!response.ok) {
             throw new Error('请求失败');
         }
         const data = await response.json();
-
-        // 更新表格
-        updateArticlesTable(data.articles);
-
-        // 更新分页
-        updateArticlePagination(data.total, page, data.page_size);
-
+        updateArticlesTable(data);
     } catch (error) {
         console.error('获取文章数据失败:', error);
-        showNotification('无法获取文章数据', 'error');
-    } finally {
-        hideLoading();
+        showNotification('无法获取文章数据，请检查网络连接', 'error');
     }
 }
+
 function updateArticlesTable(articles) {
     const tbody = document.querySelector('#articles-list');
-    if (!tbody) return;
-
-    if (!Array.isArray(articles) || articles.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="no-results">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>没有找到匹配的文章</span>
-                </td>
-            </tr>
-        `;
-        return;
-    }
-
     tbody.innerHTML = articles.map(article => `
         <tr>
             <td>${article.id}</td>
-            <td>
-                <input type="text" class="article-title-input" 
-                       value="${article.title}" 
-                       data-id="${article.id}">
-            </td>
-            <td>${article.author}</td>
-            <td>
-                <span class="article-status ${article.status}">
-                    ${article.status === 'published' ? '已发布' : 
-                      article.status === 'draft' ? '草稿' : '已存档'}
-                </span>
-            </td>
+            <td>${article.title}</td>
+            <td>${article.author_name}</td>
+            <td>${article.status}</td>
             <td>${new Date(article.created_at).toLocaleDateString()}</td>
             <td>
-                <button class="btn-small edit-btn" 
-                        onclick="editArticle(${article.id})">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn-small delete-btn" 
-                        onclick="deleteArticle(${article.id})">
-                    <i class="fas fa-trash"></i>
-                </button>
+                <button class="btn-small edit-btn" onclick="editArticle(${article.id})"><i class="fas fa-edit"></i></button>
+                <button class="btn-small delete-btn" onclick="deleteArticle(${article.id})"><i class="fas fa-trash"></i></button>
             </td>
         </tr>
     `).join('');
-
-    // 添加标题修改事件
-    document.querySelectorAll('.article-title-input').forEach(input => {
-        input.addEventListener('change', function() {
-            updateArticleTitle(this.dataset.id, this.value);
-        });
-    });
 }
 
-// 更新文章标题
-function updateArticleTitle(articleId, newTitle) {
-    fetch(`http://localhost:5000/api/articles/${articleId}/title`, {
-        method: 'PUT',
+// 删除文章
+function deleteArticle(articleId) {
+    if (!confirm(`确定删除文章 ID: ${articleId} 吗？`)) return;
+
+    fetch(`http://localhost:5000/api/articles/${articleId}`, {
+        method: 'DELETE',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + localStorage.getItem('token')
-        },
-        body: JSON.stringify({ title: newTitle })
+        }
     })
     .then(response => {
-        if (!response.ok) throw new Error('更新失败');
+        if (!response.ok) {
+            throw new Error('删除失败');
+        }
         return response.json();
     })
     .then(data => {
-        showNotification('标题更新成功', 'success');
+        showNotification('文章已删除', 'success');
+        fetchArticles();
     })
     .catch(error => {
-        console.error('更新标题失败:', error);
-        showNotification('更新标题失败', 'error');
+        console.error('删除文章失败:', error);
+        showNotification('删除文章失败', 'error');
     });
 }
 
-// 更新文章分页
-function updateArticlePagination(total, currentPage, pageSize) {
-    const pagination = document.querySelector('.articles-pagination');
-    if (!pagination) return;
-
-    const totalPages = Math.ceil(total / pageSize);
-
-    let html = `
-        <button class="page-btn ${currentPage === 1 ? 'disabled' : ''}" 
-                onclick="fetchArticles(${currentPage - 1})">
-            <i class="fas fa-angle-left"></i>
-        </button>
-    `;
-
-    // 生成页码按钮
-    for (let i = 1; i <= totalPages; i++) {
-        html += `
-            <button class="page-btn ${i === currentPage ? 'active' : ''}" 
-                    onclick="fetchArticles(${i})">
-                ${i}
-            </button>
-        `;
-    }
-
-    html += `
-        <button class="page-btn ${currentPage === totalPages ? 'disabled' : ''}" 
-                onclick="fetchArticles(${currentPage + 1})">
-            <i class="fas fa-angle-right"></i>
-        </button>
-    `;
-
-    pagination.innerHTML = html;
+// 编辑文章
+function editArticle(articleId) {
+    // 这里应该实现编辑文章的逻辑
+    // 可以打开一个模态框或重定向到编辑页面
+    window.location.href = `article.html?edit=${articleId}`;
 }
-
-// 文章标签切换
-document.querySelectorAll('.articles-tabs .tab-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        // 移除所有active类
-        document.querySelectorAll('.articles-tabs .tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-
-        // 添加active类到当前按钮
-        this.classList.add('active');
-
-        // 重新获取文章
-        fetchArticles(1);
-    });
-});
-
+// 初始化时钟并每秒更新
+updateClock();
+setInterval(updateClock, 1000);

@@ -75,17 +75,19 @@ def init_db():
 
     # 5. 文章表
     c.execute('''
-        CREATE TABLE IF NOT EXISTS articles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            content TEXT,
-            author_id TEXT,
-            author_name TEXT,
-            created_at TEXT,
-            updated_at TEXT,
-            status TEXT DEFAULT 'draft'
-        )
-    ''')
+            CREATE TABLE IF NOT EXISTS articles (
+                id INTEGER PRIMARY KEY,
+                title TEXT,
+                content TEXT,
+                author_id TEXT,
+                author_name TEXT,
+                status TEXT DEFAULT 'draft',
+                created_at TEXT,
+                updated_at TEXT,
+                html_path TEXT,
+                md_path TEXT
+            )
+        ''')
 
     # 默认系统设置：开放注册
     c.execute('''INSERT OR IGNORE INTO system_settings (setting_name, setting_value)

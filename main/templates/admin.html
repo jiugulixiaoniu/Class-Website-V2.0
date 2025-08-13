@@ -159,7 +159,7 @@
                 </div>
                 <div class="filter-group">
                     <label>每页显示:</label>
-                    <select id="pageSizeSelect">
+                    <select id="pageSizeSelects">
                         <option value="30">30条</option>
                         <option value="50">50条</option>
                         <option value="100">100条</option>
@@ -272,30 +272,60 @@
             </div>
         </section>
 
-        <!-- 文章管理页面 -->
         <section id="articles" class="content-section">
             <div class="section-header">
                 <h3>文章管理</h3>
                 <div class="section-actions">
-                    <button class="btn primary-btn"><i class="fas fa-plus"></i> 发布文章</button>
+                    <div class="search-container">
+                        <input type="text" id="articleSearch" placeholder="搜索文章...">
+                        <button id="articleSearchBtn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <button class="btn primary-btn" id="publishNewArticle">
+                        <i class="fas fa-plus"></i> 发布文章
+                    </button>
                 </div>
             </div>
 
             <div class="articles-tabs">
-                <button class="tab-btn active">全部文章</button>
-                <button class="tab-btn">草稿</button>
-                <button class="tab-btn">已发布</button>
-                <button class="tab-btn">已删除</button>
+                <button class="tab-btn active" data-status="all">
+                    <i class="fas fa-list"></i> 全部文章
+                </button>
+                <button class="tab-btn" data-status="draft">
+                    <i class="fas fa-edit"></i> 草稿
+                </button>
+                <button class="tab-btn" data-status="published">
+                    <i class="fas fa-broadcast-tower"></i> 已发布
+                </button>
+                <button class="tab-btn" data-status="archived">
+                    <i class="fas fa-archive"></i> 已存档
+                </button>
             </div>
 
-            <div class="articles-table">
-                <table>
+            <div class="articles-controls">
+                <div class="filter-group">
+                    <label>每页显示:</label>
+                    <select id="pageSizeSelect">
+                        <option value="10">10条</option>
+                        <option value="20" selected>20条</option>
+                        <option value="50">50条</option>
+                    </select>
+                </div>
+                <div class="date-range">
+                    <label>发布日期:</label>
+                    <input type="date" id="publishStart">
+                    <span>至</span>
+                    <input type="date" id="publishEnd">
+                    <button class="btn filter-btn">筛选</button>
+                </div>
+            </div>
+
+            <div class="articles-table-container">
+                <table class="articles-table">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>标题</th>
                             <th>作者</th>
-                            <th>分类</th>
                             <th>状态</th>
                             <th>发布日期</th>
                             <th>操作</th>
@@ -303,21 +333,23 @@
                     </thead>
                     <tbody id="articles-list">
                         <!-- 文章列表将通过 JavaScript 动态加载 -->
+                        <tr class="loading-row">
+                            <td colspan="6">
+                                <div class="skeleton-loader">
+                                    <div class="skeleton-row"></div>
+                                    <div class="skeleton-row"></div>
+                                    <div class="skeleton-row"></div>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="pagination">
-                <button class="page-btn disabled"><i class="fas fa-angle-left"></i></button>
-                <button class="page-btn active">1</button>
-                <button class="page-btn">2</button>
-                <button class="page-btn">3</button>
-                <button class="page-btn">...</button>
-                <button class="page-btn">10</button>
-                <button class="page-btn"><i class="fas fa-angle-right"></i></button>
+            <div class="pagination articles-pagination">
+                <!-- 分页将通过 JavaScript 动态生成 -->
             </div>
         </section>
-
         <!-- 访问日志页面 -->
         <section id="logs" class="content-section">
             <div class="section-header">

@@ -9,11 +9,17 @@ from log_activity import log_user_activity, init_logging
 from register import registration_bp
 from database_utils import init_db, load_user_data, save_user_data, DB_PATH
 from user_home import user_home_bp  # 导入用户首页蓝图
+from article import article_bp
+# 确保所有JWT操作使用相同的密钥
 app = Flask(__name__)
+app.secret_key = 'dev_secret_key_here'  # 必须与注册/登录使用的密钥一致
+app.register_blueprint(article_bp)
 CORS(app, supports_credentials=True)
-app.secret_key = 'dev_sfsdgdgdfhrtjfjghj454y7ugyid21ddgdfheredev_ev_secret_keyret_key_hered_here'  # 请确保设置一个安全的密钥
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# 注册文章蓝图
 
 # 注册蓝图时使用新的蓝图名称
 app.register_blueprint(registration_bp)  # 更新为新的蓝图名称
@@ -35,49 +41,72 @@ LEVEL_COLORS = {
 @app.route('/api/login', methods=['POST'])
 def handle_login():
     try:
+        # 获取请求数据
         data = request.get_json()
-        login_id = data.get('login_id')  # 可以是用户名或ID
+        login_id = data.get('login_id')
         password = data.get('password')
+
+        # 加载用户数据
         users = load_user_data()
         user = None
 
-        # 尝试按ID登录
+        # 尝试按ID或用户名登录
         if login_id.isdigit():
             user = next((user for user in users['users'] if user['id'] == login_id and user['password'] == password and not user['is_banned']), None)
         else:
-            # 尝试按用户名登录
             user = next((user for user in users['users'] if user['username'] == login_id and user['password'] == password and not user['is_banned']), None)
 
+        # 用户不存在或密码错误
         if not user:
             log_user_activity('Failed login attempt', username=login_id, operator_user_id='Unknown', operator_username='Unknown')
             return jsonify({"error": "用户名或密码错误，或用户已被封禁"}), 401
 
+        # 生成JWT Token
         payload = {
+            'user_id': user['id'],
             'username': user['username'],
+            'display_name': user['display_name'],
             'level': user['level'],
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=168)
         }
         token = jwt.encode(payload, app.secret_key, algorithm='HS256')
 
+        # 更新用户状态
         user['last_login'] = datetime.datetime.now().isoformat()
         user['is_online'] = True
         updated_users = [u for u in users['users'] if u['id'] != user['id']]
         updated_users.append(user)
         save_user_data(updated_users)
 
-        log_user_activity('Successful login', user['id'], user['username'], operator_user_id=user['id'], operator_username=user['username'])
+        # 记录登录成功的日志
+        log_user_activity(
+            'Successful login',
+            user_id=user['id'],
+            username=user['username'],
+            operator_user_id=user['id'],
+            operator_username=user['username']
+        )
+
+        # 返回响应
         return jsonify({
             "token": token,
-            "level": user['level'],
+            "user_id": user['id'],
+            "username": user['username'],
             "display_name": user['display_name'],
-            "last_login": user['last_login'],
-            "is_online": user['is_online']
+            "level": user['level'],
+            "last_login": user['last_login']
         })
+
+    except jwt.ExpiredSignatureError:
+        log_user_activity('Login attempt with expired token', username=login_id, operator_user_id='Unknown', operator_username='Unknown')
+        return jsonify({"error": "Token已过期"}), 401
+    except jwt.InvalidTokenError:
+        log_user_activity('Login attempt with invalid token', username=login_id, operator_user_id='Unknown', operator_username='Unknown')
+        return jsonify({"error": "无效的Token"}), 401
     except Exception as e:
         logging.error(f"登录错误: {e}")
         log_user_activity('Login error', username=login_id, operator_user_id='Unknown', operator_username='Unknown')
         return jsonify({"error": "登录失败，请检查网络连接"}), 500
-
 # 登出
 @app.route('/api/logout', methods=['POST'])
 def handle_logout():
@@ -115,19 +144,25 @@ def handle_logout():
 def validate_jwt_token():
     try:
         auth_header = request.headers.get('Authorization')
-        if not auth_header or not auth_header.startswith('Bearer '):
+        if not auth_header:
             return jsonify({"error": "Unauthorized"}), 401
+
         token = auth_header.split(' ')[1]
         payload = jwt.decode(token, app.secret_key, algorithms=['HS256'])
+
+        # 使用user_id查找用户
+        user_id = payload.get('user_id')
         users = load_user_data()
-        username = payload.get('username')
-        user = next((user for user in users['users'] if user['username'] == username), None)
-        if not user:
-            return jsonify({"error": "User not found"}), 404
+        user = next((u for u in users['users'] if u['id'] == user_id), None)
+
+        if not user or user.get('is_banned', False):
+            return jsonify({"error": "User invalid"}), 401
+
         return jsonify({
             "status": "success",
             "payload": {
-                "username": user['display_name'],
+                "user_id": user['id'],
+                "display_name": user['display_name'],
                 "level": user['level'],
                 "is_online": user['is_online']
             }
@@ -144,25 +179,33 @@ def get_current_user():
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             return jsonify({"error": "Unauthorized"}), 401
+
         token = auth_header.split(' ')[1]
         payload = jwt.decode(token, app.secret_key, algorithms=['HS256'])
+
+        # 使用user_id查找用户
+        user_id = payload.get('user_id')
         users = load_user_data()
-        username = payload.get('username')
-        user = next((user for user in users['users'] if user['username'] == username), None)
+        user = next((u for u in users['users'] if u['id'] == user_id), None)
+
         if not user:
             return jsonify({"error": "User not found"}), 404
+
         return jsonify({
-            "username": user['display_name'],
+            "user_id": user['id'],
+            "username": user['username'],
             "display_name": user['display_name'],
             "level": user['level'],
             "last_login": user['last_login'],
             "is_online": user['is_online']
         })
     except jwt.ExpiredSignatureError:
-        return jsonify({"error": "Token已过期"}), 401
+        return jsonify({"error": "Token expired"}), 401
     except jwt.InvalidTokenError:
-        return jsonify({"error": "无效的Token"}), 401
-
+        return jsonify({"error": "Invalid token"}), 401
+    except Exception as e:
+        logging.error(f"获取当前用户失败: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 # 成员管理相关 API
 @app.route('/api/members', methods=['GET'])
 def get_members():

@@ -73,14 +73,16 @@ def init_db():
     # 5. 文章表
     c.execute('''
         CREATE TABLE IF NOT EXISTS articles (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id INTEGER PRIMARY KEY,
             title TEXT,
             content TEXT,
             author_id TEXT,
             author_name TEXT,
+            status TEXT DEFAULT 'draft',
             created_at TEXT,
             updated_at TEXT,
-            status TEXT DEFAULT 'draft'
+            html_path TEXT,
+            md_path TEXT
         )
     ''')
 

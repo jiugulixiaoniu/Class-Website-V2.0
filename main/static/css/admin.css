@@ -1499,3 +1499,235 @@ body {
 .delete-btn:hover {
     background: rgba(231, 74, 59, 0.2);
 }
+/* 添加以下样式 */
+.articles-table .article-title-input {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #e3e6f0;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.articles-table .article-title-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.1);
+}
+
+.article-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.article-status.draft {
+    background-color: rgba(246, 194, 62, 0.1);
+    color: var(--warning-color);
+}
+
+.article-status.published {
+    background-color: rgba(28, 200, 138, 0.1);
+    color: var(--success-color);
+}
+
+.article-status.archived {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: var(--gray-color);
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px;
+    color: var(--gray-color);
+}
+
+.no-results i {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+.loading-row {
+    text-align: center;
+    padding: 15px;
+    color: var(--gray-color);
+}
+/* 文章管理页面样式优化 */
+.articles-controls {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.date-range input {
+    padding: 8px 12px;
+    border: 1px solid #e3e6f0;
+    border-radius: 4px;
+}
+
+.filter-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.filter-btn:hover {
+    background: #3a56c4;
+}
+
+.articles-table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.articles-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.articles-table th {
+    background-color: #f8f9fc;
+    color: var(--gray-color);
+    font-weight: 500;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid #e3e6f0;
+}
+
+.articles-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.articles-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.articles-table tr:hover {
+    background-color: #f0f7ff;
+}
+
+.article-title {
+    color: var(--primary-color);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.article-title:hover {
+    text-decoration: underline;
+}
+
+.article-status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.article-status.draft {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.article-status.published {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.article-status.archived {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.articles-table .btn-small {
+    margin: 0 3px;
+}
+
+.btn-small.edit-btn {
+    background: rgba(78, 115, 223, 0.1);
+    color: var(--primary-color);
+}
+
+.btn-small.edit-btn:hover {
+    background: rgba(78, 115, 223, 0.2);
+}
+
+.btn-small.delete-btn {
+    background: rgba(231, 74, 59, 0.1);
+    color: var(--danger-color);
+}
+
+.btn-small.delete-btn:hover {
+    background: rgba(231, 74, 59, 0.2);
+}
+
+.articles-pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.pagination .page-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e3e6f0;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 0 3px;
+}
+
+.pagination .page-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.pagination .page-btn:hover:not(.disabled) {
+    background: #f0f7ff;
+}
+
+/* 骨架屏加载动画 */
+.skeleton-loader {
+    width: 100%;
+    padding: 20px;
+}
+
+.skeleton-row {
+    height: 12px;
+    background: #e9ecef;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    animation: loading 1.5s infinite ease-in-out;
+}
+
+@keyframes loading {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
